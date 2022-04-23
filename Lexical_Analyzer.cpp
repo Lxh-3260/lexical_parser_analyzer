@@ -27,6 +27,7 @@ vector<int> dfa_final_state;//dfa的终态
 
 int now_dfa_state;//token放入dfa中跑时，当前的dfa_state
 
+vector<string> token_result;//存放token的最终结果
 /*定义一个关键字数组，sacn()读入，识别token串时
 	若首字母是字母,则先遍历数组与依次与token比较判断是不是关键字
 		若是关键字，break输出keywordtoken
@@ -36,7 +37,8 @@ const char keyword[][10] = {
 	"int","float","double","char","bool" ,
 	"if","else" ,"main" ,"void" ,"while" ,
 	"break" ,"continue" ,"return" ,
-};
+	"cin" , "cout" 
+};//cin cout main 并不是关键字，方便判别，作为关键字来识别
 
 struct Edge_NFA {
 	char start = '0';//start为开始结点
@@ -174,10 +176,10 @@ void NFA_to_DFA() {
 		/*printf("第%d个集合为：", i);
 		auto count_size1 = C[i].size();
 		for (auto it = C[i].begin(); it != C[i].end(); it++) {
-			cout << *it ;
-			if (--count_size1) cout << " , ";
+			debug << *it ;
+			if (--count_size1) debug << " , ";
 		}
-		cout << endl;*/
+		debug << endl;*/
 
 		for (auto it = weight.begin(); it != weight.end(); it++) {//weight.size()为nfa总的val值数量 
 			int j = 0;
@@ -210,7 +212,7 @@ void NFA_to_DFA() {
 					dfa.edge[dfa.edge_num].end = k;
 					dfa.edge_num++;
 					//cout << i << "	input	" << *it << "	to	" << k << endl;
-					//cout << i << " " << k << " " << *it << endl;//https://csacademy.com/app/graph_editor/生成有向图用的
+					//cout << i << " " << k << " " << *it << endl;//https://csacademy.com/app/graph_editor/的输出格式，生成有向图用的
 				}
 				j++;
 			}
@@ -288,7 +290,130 @@ bool token_can_run_final(string str) {
 
 //读入源程序
 void scan() {
+	ifstream read_program("source_program.txt");
+	string line;
+	int line_number = 1;
+	while (getline(read_program,line)) {
+		int i = 0;
+		while (line[i] == ' ') {
+			i++; 
+		}
+		int flag = i;
+		vector<string> token;
+		for (; i < line.size(); i++) {
+			string temp_token;
+			if (i == line.size() - 1) {
+				string s;
+				s+= line[i];
+				token.push_back(s);
+			}
+			if (line[i] == ' ') {
+				for (int j = flag;j<i; j++) {
+					temp_token += line[j];
+				}
+				token.push_back(temp_token);
+				flag = i + 1;
+			}
+		}
+		i = 0;
+		//用于debug输出所有token查看的
+		/*for (int k = 0; k < token.size(); k++) {
+			debug << token[k] << " ";
+		}
+		cout << endl;*/
+		for (int temp1 = 0; temp1 < token.size(); temp1++) {
+			int all = sizeof(keyword) / sizeof(char);
+			int column = sizeof(keyword[0]) / sizeof(keyword[0][0]);
+			int row = all / column;
+			bool is_judged = false;
+			//1、先判断关键字keyword
+			for (int temp2 = 0; temp2 < row; temp2++) {
+				if (token[temp1] == keyword[temp2]) {
+					is_judged = true;
+					cout << line_number << "," << token[temp1] << "," << "keyword" << endl;
 
+					output << line_number << "," << token[temp1] << "," << "keyword" << endl;
+				}
+			}
+			if (is_judged) continue;
+			//2、再判断界符limiter
+			if (token[temp1] == "," || token[temp1] == ";" || token[temp1] == "[" || token[temp1] == "]"
+				|| token[temp1] == "(" || token[temp1] == ")" || token[temp1] == "{" || token[temp1] == "}") {
+				is_judged = true;
+				cout << line_number << "," << token[temp1] << "," << "limiter" << endl;
+
+				output << line_number << "," << token[temp1] << "," << "limiter" << endl;
+			}
+			if (is_judged) continue;
+			//3、再判断操作符operator
+			if (token[temp1][0] == '+' || token[temp1][0] == '-' || token[temp1][0] == '*'
+				|| token[temp1][0] == '/' || token[temp1][0] == '%' || token[temp1][0] == '^'
+				|| token[temp1][0] == '=' || token[temp1][0] == '>' || token[temp1][0] == '<') {
+				is_judged = true;
+				if (token_can_run_final(token[temp1])) {
+					cout << line_number << "," << token[temp1] << "," << "operator" << endl;
+
+					output << line_number << "," << token[temp1] << "," << "operator" << endl;
+				}
+				else {
+					cout << line_number << "," << token[temp1] << "," << "wrong operator" << endl;
+
+					output << line_number << "," << token[temp1] << "," << "wrong operator" << endl;
+				}
+			}
+			if (is_judged) continue;
+			//4、再判断标识符identifier
+			string str_token = token[temp1];
+			for (int temp2 = 0; temp2 < token[temp1].size(); temp2++) {
+				if ((token[temp1][temp2] >= 'a' && token[temp1][temp2] <= 'z' && token[temp1][temp2] != 'i' && token[temp1][temp2] != 'e') ||
+					(token[temp1][temp2] >= 'A' && token[temp1][temp2] <= 'Z' && token[temp1][temp2] != 'i' && token[temp1][temp2] != 'e')) token[temp1][temp2] = 'a';
+				if (token[temp1][temp2] <= '9' && token[temp1][temp2] >= '1') token[temp1][temp2] = 'c';
+			}
+			//以字母或者下划线开头的，一定是标识符，判断合法性即可
+			if (token[temp1][0] == '_' || token[temp1][0] == 'a') {
+				if (token_can_run_final(token[temp1])) {
+					cout << line_number << "," << str_token << "," << "identifier" << endl;
+
+					output << line_number << "," << str_token << "," << "identifier" << endl;
+				}
+				else {
+					cout << line_number << "," << str_token << "," << "wrong identifier" << endl;
+
+					output << line_number << "," << str_token << "," << "wrong identifier" << endl;
+				}
+			}
+			//以数字开头的，有可能是常量number，有可能是非法标识符，遍历一下
+			//5、最后判断常量number
+			bool is_wrong_identifier = false;
+			if (token[temp1][0] == 'c' || token[temp1][0] == '0') {
+				for (int l = 0; l < token[temp1].size(); l++) {
+					if (token[temp1][l] == 'a') {
+						is_wrong_identifier = true;
+						break;
+					}
+				}
+				if (is_wrong_identifier) {
+					cout << line_number << "," << str_token << "," << "wrong identifier" << endl;
+
+					output << line_number << "," << str_token << "," << "wrong identifier" << endl;
+					continue;
+				}
+				else {
+					if (token_can_run_final(token[temp1])) {
+						cout << line_number << "," << str_token << "," << "number" << endl;
+
+						output << line_number << "," << str_token << "," << "number" << endl;
+					}
+					else {
+						cout << line_number << "," << str_token << "," << "wrong number" << endl;
+
+						output << line_number << "," << str_token << "," << "wrong number" << endl;
+					}
+				}
+			}
+		}
+		line_number++;
+	}
 }
 
 int main() {
@@ -298,10 +423,15 @@ int main() {
 	NFA_to_DFA();
 	//show_DFA_node();
 	//show_DFA_edge();
+	
+	//测试正规文法和token的输入部分
 	/*string token;
 	while (cin >> token)
 	{
 		debug << token_can_run_final(token) << endl;
 	}*/
+	output.open("token_output.txt");
+	scan();
+	output.close();
 	return 0;
 }

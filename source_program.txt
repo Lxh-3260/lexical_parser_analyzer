@@ -1,15 +1,15 @@
 int main ( void ) {
-    int a = 5+8i , b = 10 , c = 2.6e+15 ;
-    double lxh = 1.0 ;
-    double _lxh = 1 ;
-
-    if ( _lxh > 0 ) cout << _lxh ;
-    else cout << lxh ;
-
     int k = 0 ;
-    while ( k < 40 ) cin >> a ;
+    int a = 10+8i , b = 2.5e-13 ;
+    double c = 0.314e+10 ;
 
-    int A = 50 , B = 23 , C;
+    float _lxh = 1.0 ;
+    double lxh = 1.314 ;
+
+    if ( _lxh >= 0 ) _lxh += 2.3 ;
+    else lxh = 2 ^ 3 ;
+
+    int A = 50 , 12_B = 23 , C = 02 ;
 
     return 0 ;
 }
