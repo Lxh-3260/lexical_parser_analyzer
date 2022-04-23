@@ -1,0 +1,15 @@
+int main ( void ) {
+    int a = 5+8i , b = 10 , c = 2.6e+15 ;
+    double lxh = 1.0 ;
+    double _lxh = 1 ;
+
+    if ( _lxh > 0 ) cout << _lxh ;
+    else cout << lxh ;
+
+    int k = 0 ;
+    while ( k < 40 ) cin >> a ;
+
+    int A = 50 , B = 23 , C;
+
+    return 0 ;
+}

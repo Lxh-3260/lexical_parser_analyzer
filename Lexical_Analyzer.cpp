@@ -10,6 +10,7 @@
 #include <fstream>
 #include <cstdio>
 #include <stack>
+#include <numeric>
 
 #define debug cout
 
@@ -17,11 +18,14 @@ using namespace std;
 
 const int MAX_NODES = 100;
 
-ifstream input;//读入文件流（正规文法和源程序）
+ifstream input;//读入文件流（正规文法）
 ofstream output;//输出文件流（token二元组）
 
 set<char> weight;//读取正规文法的所有不重复的终结符（nfa边上权值）,在create_NFA函数中初始化
-vector<int> dfa_final_state;
+set<char> C[MAX_NODES];//C为DFA每一个子集里的结点，下标从0开始 
+vector<int> dfa_final_state;//dfa的终态
+
+int now_dfa_state;//token放入dfa中跑时，当前的dfa_state
 
 /*定义一个关键字数组，sacn()读入，识别token串时
 	若首字母是字母,则先遍历数组与依次与token比较判断是不是关键字
@@ -34,7 +38,7 @@ const char keyword[][10] = {
 	"break" ,"continue" ,"return" ,
 };
 
-struct Edge {
+struct Edge_NFA {
 	char start = '0';//start为开始结点
 	char val = '0';//start为边上权值
 	char end = '0';//end为指向的结点
@@ -42,9 +46,21 @@ struct Edge {
 
 struct NFA_node {
 	set<char> node;//结点集合
-	Edge edge[100];//边集
+	Edge_NFA edge[100];//边集
 	int edge_num = 0;//边数
 }nfa;
+
+struct Edge_DFA {
+	int start = 0;//start为开始结点
+	char val = '0';//start为边上权值
+	int end = 0;//end为指向的结点
+};
+
+struct DFA_node {
+	set<int> node;
+	Edge_DFA edge[100];
+	int edge_num = 0;
+}dfa;
 
 //初始化NFA，加入终态结点Z
 void init_NFA() {
@@ -89,17 +105,17 @@ void create_NFA() {
 	}
 }
 
-//debug时用于展示nfa的边
-void show_NFA_edge() {
-	for (int i = 0; i < nfa.edge_num; i++) {
-		debug << nfa.edge[i].start << "	" << nfa.edge[i].val << "	" << nfa.edge[i].end << endl;
-	}
-}
-
 //debug时用于展示nfa结点
 void show_NFA_node() {
 	for (auto i = nfa.node.begin(); i != nfa.node.end(); i++) {
 		debug << *i << endl;
+	}
+}
+
+//debug时用于展示nfa的边
+void show_NFA_edge() {
+	for (int i = 0; i < nfa.edge_num; i++) {
+		debug << nfa.edge[i].start << "	" << nfa.edge[i].val << "	" << nfa.edge[i].end << endl;
 	}
 }
 
@@ -137,13 +153,10 @@ set<char> e_closure(set<char> I, NFA_node N) {
 }
 
 void NFA_to_DFA() {
-	cout  << "NFA_TO_DFA Result:" << endl;
+	//cout << "NFA_TO_DFA Result:" << endl;
 	bool marked[MAX_NODES] = { false };
-	//for (int i = 0; i < MAX_NODES; i++) marked[i] = false;
-	set<char> C[MAX_NODES];//C为DFA每一个子集里的结点，下标从0开始 
-	/*char s0 = nfa.edge[0].start;*/
 	set<char> T0, T1;
-	
+
 	//注意这里要手动插入初态到T0
 	T0.insert('L'); T0.insert('O'); T0.insert('I'); T0.insert('A'); T0.insert('S'); T0.insert('M');
 	//T0.insert('0');//测试test文件中的的dfa正确性用的，对比书上p52的状态图检验其正确性
@@ -156,15 +169,15 @@ void NFA_to_DFA() {
 	int i = 0;
 	while (!C[i].empty() && marked[i] == false && i < MAX_NODES) {
 		marked[i] = true;
-		//下面被注释代码可用于输出图中求出来的集合
-
-		printf("第%d个集合为：", i);
-		int count_size1 = C[i].size();
+		
+		//输出DFA的每个子集C[i]
+		/*printf("第%d个集合为：", i);
+		auto count_size1 = C[i].size();
 		for (auto it = C[i].begin(); it != C[i].end(); it++) {
 			cout << *it ;
 			if (--count_size1) cout << " , ";
 		}
-		cout << endl;
+		cout << endl;*/
 
 		for (auto it = weight.begin(); it != weight.end(); it++) {//weight.size()为nfa总的val值数量 
 			int j = 0;
@@ -191,7 +204,13 @@ void NFA_to_DFA() {
 						}
 						C[k] = temp;
 					}
-					cout << i << "	input	" << *it << "	to	" << k << endl;
+					dfa.node.insert(i);
+					dfa.edge[dfa.edge_num].start = i;
+					dfa.edge[dfa.edge_num].val = *it;
+					dfa.edge[dfa.edge_num].end = k;
+					dfa.edge_num++;
+					//cout << i << "	input	" << *it << "	to	" << k << endl;
+					//cout << i << " " << k << " " << *it << endl;//https://csacademy.com/app/graph_editor/生成有向图用的
 				}
 				j++;
 			}
@@ -205,7 +224,6 @@ void NFA_to_DFA() {
 	2.依次遍历C[i]，若为空说明已经遍历完
 	3.非空子集则用迭代器遍历C内元素，若有Z的终态结点，则说明这个子集是DFA的终态
 	*/
-	cout << "Final state is : ";
 	i = 0;
 	while (!C[i].empty()) {
 		bool is_final_state = false;
@@ -220,17 +238,70 @@ void NFA_to_DFA() {
 		}
 		i++;
 	}
+	//输出DFA终态结点
+	/*cout << "Final state is : ";
 	for (int a = 0; a < dfa_final_state.size(); a++) {
 		cout << dfa_final_state[a];
 		if (a != dfa_final_state.size() - 1) cout << " , ";
 	}
-	cout << endl;
+	cout << endl;*/
+}
+
+//debug用于检查dfa所有的结点
+void show_DFA_node() {
+	for (auto i = dfa.node.begin(); i != dfa.node.end(); i++) {
+		debug << *i << endl;
+	}
+}
+
+//debug用于检查dfa所有的边
+void show_DFA_edge() {
+	for (int i = 0; i < dfa.edge_num; i++) {
+		debug << dfa.edge[i].start << "	" << dfa.edge[i].val << "	" << dfa.edge[i].end << endl;
+	}
+}
+
+//将扫描进来的token放进dfa跑，看能不能到终态
+bool token_can_run_final(string str) {
+	if (str.size() == 0) {
+		for (int i = 0; i < dfa_final_state.size(); i++) {
+			//若能在dfa跑到终态
+			if (now_dfa_state == dfa_final_state[i])
+			{
+				now_dfa_state = 0;
+				return true;
+			}
+		}
+	}
+	char ch = str[0];
+	string str_deletefirst;
+	for (int i = 1; i < str.size(); i++) str_deletefirst += str[i];
+	for (int i = 0; i < dfa.edge_num; i++) {
+		if (dfa.edge[i].start == now_dfa_state && dfa.edge[i].val == ch) {
+			now_dfa_state = dfa.edge[i].end;
+			return token_can_run_final(str_deletefirst);
+		}
+	}
+	now_dfa_state = 0;
+	return false;
+}
+
+//读入源程序
+void scan() {
+
 }
 
 int main() {
 	create_NFA();
-	//show_NFA_edge();
 	//show_NFA_node();
+	//show_NFA_edge();
 	NFA_to_DFA();
+	//show_DFA_node();
+	//show_DFA_edge();
+	/*string token;
+	while (cin >> token)
+	{
+		debug << token_can_run_final(token) << endl;
+	}*/
 	return 0;
 }
