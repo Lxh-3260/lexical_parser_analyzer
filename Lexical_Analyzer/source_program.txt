@@ -1,4 +1,8 @@
-int main ( void ) {
+int parameter ( int n ) {
+    if ( n == 1 ) return 1 ;
+    else return ( n + 2 ) / 3 ;
+}
+int main ( ) {
     int k = 0 ;
     int a = 10+8i , b = 2.5e-13 ;
     double c = 0.314e+10 ;
@@ -8,8 +12,11 @@ int main ( void ) {
 
     if ( _lxh >= 0 ) _lxh += 2.3 ;
     else lxh = 2 ^ 3 ;
-
-    int A = 50 , 12_B = 23 , C = 02 ;
+    
+    while ( lxh >= _lxh ) {
+        lxh -= c ;
+        break ;
+    }
 
     return 0 ;
 }

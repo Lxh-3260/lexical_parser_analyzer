@@ -164,6 +164,7 @@ set<char> e_closure(set<char> I, NFA_node N) {
 	return temp;
 }
 
+//通过调用move和e_closure将NFA转化成DFA
 void NFA_to_DFA() {
 	//cout << "NFA_TO_DFA Result:" << endl;
 	bool marked[MAX_NODES] = { false };
