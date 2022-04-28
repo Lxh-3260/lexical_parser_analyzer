@@ -274,7 +274,7 @@ void show_DFA_edge() {
 	}
 }
 
-//将扫描进来的token放进dfa跑，看能不能到终态
+//将扫描进来的token放进dfa跑，看能不能到终态，能跑到终态的才能说明其是合法的token，否则就是错误的token
 bool token_can_run_final(string str) {
 	if (str.size() == 0) {
 		for (int i = 0; i < dfa_final_state.size(); i++) {

@@ -16,14 +16,22 @@
 
 using namespace std;
 
-vector< vector<char> > G;//存放文法，一个vector二维数组，一行存放一行文法，具体的vector嵌套用法可以去搜索一下“C++ 中vector的嵌套使用”这篇博客
-map< char , set<char> > terminal;//存放终结符到其FIRST集合的映射
-map< char , set<char> > nonterminal;//存放非终结符到其FIRST集合的映射
+vector<vector<char>> G;//存放文法，一个vector二维数组，一行存放一行文法，具体的vector嵌套用法可以去搜索一下“C++ 中vector的嵌套使用”这篇博客
+map<char, set<char>> terminal;//存放终结符到其FIRST集合的映射，terminal.first表示map的前一项，为终结符对应的char，terminal.second表示map的后一项，为该终结符的FIRST集
+map<char, set<char>> nonterminal;//存放非终结符到其FIRST集合的映射，nonterminal.first表示map的前一项，为终结符对应的char，nonterminal.second表示map的后一项，为该终结符的FIRST集
 
 vector<string> token;//读入词法分析输出的token，并将其转换成我写的二型文法所能识别的符号串，即终结符（包括number，identifer，type，keyword，界符，运算符）
 
+//项目集
+struct Project {
+	vector<vector<char>> project;//项目	集I，二维数组，行表示该项目集有多少行产生式，列表示产生式的各个字符
+	vector<set<char>> search_forward;//项目集I的每条产生式对应的向前搜索符号集，由于每个终结符在一条产生式的向前搜索符号集只能出现一次，故set集合更符合其数据结构
+	map<char, int> go;//每个项目输入一个char字符，要转移到的另一个项目编号
+};
+vector<Project> clousure;//clousure表示所有项目集的闭包
+
 void read_grammar2() {
-	ifstream read("grammar2.txt");
+	ifstream read("test.txt");
 	string content;
 	vector<char> temp;//存放每一行除了推导符以外的字符，并读入文法G
 	set<char> t;//用于给map增加结点（非终结符和终结符）
@@ -44,6 +52,8 @@ void read_grammar2() {
 		G.push_back(temp);
 		temp.clear();
 	}
+	//debug时输错了ifstream的文件名导致vector out of range的严重错误，故加上exit(0)，当没读到文件时直接退出
+	if (G.empty()) exit(0);
 	//拓广文法,S'->S，这里方便表示将S'用Z表示
 	temp.push_back('Z');
 	nonterminal['Z'] = t;
@@ -149,11 +159,11 @@ void get_First() {
 	for (auto &it : terminal) {
 		it.second.insert(it.first);//终结符的first是他本身
 	}
-	bool ischanged = true;
+	bool ischanged = true;//每次insert操作会看该终结符的FIRST.size()是否改变，只要改变了，就要一直循环再找一次
 	while (ischanged) {
 		ischanged = false;
 		for (auto& it : nonterminal) {
-			//对于每个非终结符遍历一次所有文法
+			//对于每个非终结符遍历一次所有文法，it.first为当前非终结符，it.second为该终结符的First集合
 			for (int i = 0; i < G.size(); i++) {
 				//G是一个二维数组，行表示每行文法，列表示每行文法的每个字符
 				int size = it.second.size();
@@ -180,16 +190,18 @@ void get_First() {
 						}
 						else {
 							//B能推出空，将{FIRST(B)-{@}}并上{FIRST(C)}加入FIRST(A)
+							//1. {FIRST(B)-{@}}
 							for (auto j = nonterminal[G[i][1]].begin(); j != nonterminal[G[i][1]].end(); j++) {
 								if (*j != '@') it.second.insert(*j);
 								if (it.second.size() > size) ischanged = true;
 							}
-							//然后分两种情况1、若该产生式只有A->B，将空加入A
+							//2. 然后分两种情况
+							//2.1 若该产生式只有A->B，即C为空，{FIRST(C)}='@'，将空加入A
 							if (G[i].size() == 2) {
 								it.second.insert('@');
 								if (it.second.size() > size) ischanged = true;
 							}
-							//2、A->BC将FIRST(C)加入FIRST(A)，若C也能推空的情况在下一次循环中会再一次处理（类似于递归的思想）
+							//2.2 A->BC将FIRST(C)加入FIRST(A)，若C也能推空的情况在下一次循环中会再一次处理（类似于递归的思想）
 							else {
 								for (auto j = nonterminal[G[i][2]].begin(); j != nonterminal[G[i][2]].end(); j++) {
 									it.second.insert(*j);
@@ -204,16 +216,227 @@ void get_First() {
 	}
 }
 
+//debug时展示FIRST集，并验证其正确性
 void show_First() {
 	for (auto& it : nonterminal) {
 		//遍历nonterminal的map，先输出nonterminal.fist，也就是一个终结符
-		cout << "FIRST(" << it.first << "):";
+		debug << "FIRST(" << it.first << "):";
 		int size = it.second.size();
 		//遍历second的size()大小，取出其中的值，这里存放的是first集合
 		/*for (auto& iter1 : it.second)
 			cout << iter1 << "	";*/
 		for (auto iter = it.second.begin(); iter != it.second.end(); iter++) {
-			cout << *iter << "	";
+			debug << *iter << "	";
+		}
+		debug << endl;
+	}
+}
+
+//根据G中读取的二型文法得到项目集族
+void get_Clousure() {
+	int i = 0;//每个项目集的编号
+	Project p;
+	clousure.push_back(p);
+	while (true) {
+		if (i == clousure.size()) break;//没有新的闭包产生时，跳出循环
+		if (i == 0) {
+			//先初始化I0项目集的第一条产生式S’->·S,#
+			vector<char> temp1(G[0]);//temp1存新产生式
+			temp1.insert(temp1.begin() + 1, ' ');//用空格space代替·，因为·是圆角字符，无法被字符的ASCII码识别，后文所有的项目集和闭包中的空格都是表示·
+			clousure[0].project.push_back(temp1);
+			set<char> temp2;//temp2存新向前搜索符号集
+			temp2.insert('#');
+			clousure[0].search_forward.push_back(temp2);
+		}
+
+		//求每个项目集第一条产生式扩展出来的闭包项目
+		for (int j = 0; j < clousure[i].project.size(); j++) {
+			//遍历已有项目集，j为每个项目集中的第j个项目
+			for (int k = 0; k < clousure[i].project[j].size(); k++) {
+				//遍历该项目集，找到·的位置，k为每个项目中各个终结符非终结符的编号
+				if (clousure[i].project[j][k] == ' ') {
+					//找到了·的位置，开始从·的后面一个终结符生成新的产生式
+					if (k == clousure[i].project[j].size() - 1) {
+						//·在产生式的最后，比如说S'->S·,#  那么这条产生式不能推出新的产生式
+						//故该项目集的·不需要处理，break处理下一个项目集
+						break;
+					}
+					for (int l = 0; l < G.size(); l++) {
+						//·在产生式的中间的情况，比如说A->α·Bβ,a
+						//遍历所有的二型文法G，查找·后面的非终结符所有的产生式，并将新的产生式加入项目集
+						if (G[l][0] == clousure[i].project[j][k + 1]) {
+							vector<char> temp1(G[l]);
+							temp1.insert(temp1.begin() + 1, ' ');
+							//生成新的产生式后不能直接插入到当前的project中
+							//先判断该新的项目是否存在在当前项目集，若存在则记录下编号，若不存在则插入
+							int project_is_exist = 0;
+							for (int m = 0; m < clousure[i].project.size(); m++) {
+								if (temp1 == clousure[i].project[m]) {
+									project_is_exist = m;
+									break;
+								}
+							}
+							if(project_is_exist == 0) clousure[i].project.push_back(temp1);
+							//接下里开始处理向前搜索符号集
+							set<char> temp2;//用来保存暂时的向前搜索符号集，后面用于push_back的
+							/*
+							形如产生式：A->α·Bβ,a  计算向前搜索符号集，即计算FIRST(βa)，分4种情况：
+							1.该产生式没有β，产生式为A->α·B,a，向前搜索符号集为{a}
+							2.β的第一个字符为终结符{b}，产生式为A->α·Bb,a，那么向前搜索符号集为该终结符{b}
+							
+							3.β的第一个字符为非终结符C，产生式为A->α·BC,a，且该非终结符能推出空,向前搜索符号集为FIRST(C)-{'@'}并上{γa}，其中γ为去除β的第一个符号C后的字符串
+							4.β的第一个字符为非终结符C，产生式为A->α·BC,a，且该非终结符不能推出空,向前搜索符号集为FIRST(C)
+							*/
+							bool deduce_empty = true;//判断β的第一个字符C能不能推出空
+							int n = 0;//n记录去除β的第n个字符
+							while (deduce_empty) {
+								deduce_empty = false;
+								if (k + n + 1 == clousure[i].project[j].size() - 1) {
+									//第一种情况β为空
+									for (auto it : clousure[i].search_forward[j]) temp2.insert(it);
+								}
+								else if (terminal.find(clousure[i].project[j][k + n + 2]) != terminal.end()) {
+									//第二种情况，首字符为终结符
+									temp2.insert(clousure[i].project[j][k + n + 2]);
+								}
+								else {
+									//第三、四种情况β的第一个字符为非终结符
+									//找到C的FIRST集中所有的终结符
+									set<char> temp_nonter(nonterminal.find(clousure[i].project[j][k + n + 2])->second);//注意find找到的是一个地址，迭代器的用法，不是一个值，所以不能用.second而是用->second
+									for (auto it : temp_nonter) {
+										if (it == '@') {
+											//如果第一个字符能推出空
+											deduce_empty = true;//再进行一次循环，找FIRST(γa)并插入
+											n++;
+										}
+										else {
+											//如果第一个字符不能推出空
+											temp2.insert(it);
+										}
+									}
+								}
+							}
+							/*
+							现在新项目clousure[i].project[j]的向前搜索符号集暂存在set<char> temp2中
+							对向前搜索符号集的处理分为2种：
+							1.temp1原先不在该项目集中，根据原产生式后面部分的FIRST集合，来确定其向前搜索符号集
+							2.temp1原先在项目集中，根据原产式，得到新的向前搜索符号集插入原先产生式的向前搜索符号集合
+							*/
+							if (project_is_exist == 0) {
+								//第一种情况，temp1不在项目集中
+								clousure[i].search_forward.push_back(temp2);
+							}
+							else {
+								//第一种情况，temp1在项目集中
+								for (auto it : temp2) {
+									clousure[i].search_forward[project_is_exist].insert(it);
+								}
+							}
+						}
+					}
+					
+					//已经处理过这个项目集的·了，break处理下一个项目集
+					break;
+				}
+			}
+		}
+
+		//判断该闭包是否是已经出现的闭包,并计算闭包之间相互转换的边
+		for (int j = 0; j < clousure[i].project.size(); j++) {
+			//遍历本项目集
+			for (int k = 0; k < clousure[i].project[j].size(); k++) {
+				//扫描每个产生式，找到·的位置
+				if (clousure[i].project[j][k] == ' ') {
+					//debug时发现project后面，少写了一个[j]，导致vector溢出，这么小的错误debug了半天
+					if (k == clousure[i].project[j].size() - 1) {
+						//如果·在产生式最后，那么这个产生式不会有新的闭包，break，处理下一个产生式
+						break;
+					}
+					//否则·不在产生式的最后，则将点后移一位
+					//然后计算闭包之间的边，生成新的闭包
+					vector<char> new_clousure_project(clousure[i].project[j]);//新的产生式（有原产生式推出，故初始化为源产生式clousure[i].project[j]）
+					new_clousure_project[k] = new_clousure_project[k + 1];//new_clousure_project[k]存放的是待移入字符
+					new_clousure_project[k + 1] = ' ';
+					char ch = new_clousure_project[k];//ch存放待移入字符(后面嵌套太多了，用new_clousure_project[k]很混乱)
+					set<char> new_clousure_search_forward(clousure[i].search_forward[j]);//新的向前搜索符号集（与原产生式向前搜索符号集一样）
+					bool is_new_clousure = false;//判断新生成的项目是否是新的闭包（用于判断要不要生成新闭包）
+					for (int m = 0; m < clousure.size(); m++) {
+						//遍历所有的闭包，看看该闭包是否已经出现过（项目集相等且向前搜索符号集也相等）
+						for (int n = 0; n < clousure[m].project.size(); n++) {
+							//遍历每个闭包的所有项目集
+							is_new_clousure = false;
+							if (new_clousure_project == clousure[m].project[n]) {
+								//这里的下标也是debug了半天，应该是跟第一条产生式的向前搜索符号集size对比，看是否一样，而不是跟整个项目集搜索符号集的大小比，少写了个[0]
+								if (clousure[m].search_forward[0].size() != new_clousure_search_forward.size()) {
+									is_new_clousure = true;
+									break;
+								}
+								auto it1 = clousure[m].search_forward[0].begin();
+								for (auto it2 : new_clousure_search_forward) {
+									if (it2 != *it1) {
+										is_new_clousure = true;
+										break;
+									}
+									/*if (it1 == clousure[m].search_forward[0].end()) {
+										is_new_clousure = false;
+										break;
+									}*/
+									it1++;
+								}
+								if (is_new_clousure == false) {
+									clousure[i].go[ch] = m;
+									break;
+								}
+							}
+							else is_new_clousure = true;
+
+							if (is_new_clousure == false) break;
+						}
+						if (is_new_clousure == false) break;
+					}
+					/*
+					例如这种情况，第一次第一行T的go函数会计算出来，第二次要把第二行的产生式加入第一次的go函数指向的那个闭包
+					E->·T，)/+
+					T->·T*F，)/+/* 
+					*/
+					if (clousure[i].go.count(new_clousure_project[k]) != 0 && is_new_clousure) {
+						clousure[clousure[i].go[ch]].project.push_back(new_clousure_project);
+						clousure[clousure[i].go[ch]].search_forward.push_back(new_clousure_search_forward);
+						break;
+					}
+					//如果是没出现过的新的闭包，插入该闭包
+					if (is_new_clousure == true) {
+						Project new_clousure;
+						new_clousure.project.push_back(new_clousure_project);
+						new_clousure.search_forward.push_back(new_clousure_search_forward);
+						clousure.push_back(new_clousure);
+						//go是一个char到int的映射，表示输入对应的char，该闭包会跳转至哪个闭包，
+						//比如A->α·BC,a，那么他的输入符号就是B，也就是对应new_clousure_project[k]
+						//由于输入的符号是new_clousure_project[k]，新的闭包是clousure.size()-1
+						clousure[i].go[ch] = clousure.size() - 1;
+					}
+				}
+			}
+		}
+		
+		i++;
+	}
+}
+
+void show_Clousure() {
+	for (int i = 0; i < clousure.size(); i++) {
+		printf("I%d:\n", i);
+		for (int j = 0; j < clousure[i].project.size(); j++) {
+			for (int k = 0; k < clousure[i].project[j].size(); k++) {
+				if (clousure[i].project[j][k] != ' ')cout << clousure[i].project[j][k];
+				else cout << "·";
+				if (k == 0) cout << "->";
+			}
+			cout << ',';
+			for (auto it = clousure[i].search_forward[j].begin(); it != clousure[i].search_forward[j].end(); it++) {
+				cout << *it << '/';
+			}
+			cout << endl;
 		}
 		cout << endl;
 	}
@@ -225,5 +448,7 @@ int main() {
 	deal_with_token();
 	//show_token();
 	get_First();
-	show_First();
+	//show_First();
+	get_Clousure();
+	show_Clousure();
 }
