@@ -22,16 +22,18 @@ map<char, set<char>> nonterminal;//存放非终结符到其FIRST集合的映射，nonterminal.
 
 vector<string> token;//读入词法分析输出的token，并将其转换成我写的二型文法所能识别的符号串，即终结符（包括number，identifer，type，keyword，界符，运算符）
 
+map< map<string, char>, string> table; //LR分析表
+
 //项目集
 struct Project {
-	vector<vector<char>> project;//项目	集I，二维数组，行表示该项目集有多少行产生式，列表示产生式的各个字符
+	vector<vector<char>> project;//项目集I，二维数组，行表示该项目集有多少行产生式，列表示产生式的各个字符
 	vector<set<char>> search_forward;//项目集I的每条产生式对应的向前搜索符号集，由于每个终结符在一条产生式的向前搜索符号集只能出现一次，故set集合更符合其数据结构
 	map<char, int> go;//每个项目输入一个char字符，要转移到的另一个项目编号
 };
 vector<Project> clousure;//clousure表示所有项目集的闭包
 
 void read_grammar2() {
-	ifstream read("test.txt");
+	ifstream read("grammar2.txt");
 	string content;
 	vector<char> temp;//存放每一行除了推导符以外的字符，并读入文法G
 	set<char> t;//用于给map增加结点（非终结符和终结符）
@@ -232,7 +234,7 @@ void show_First() {
 	}
 }
 
-//根据G中读取的二型文法得到项目集族
+//根据G中读取的二型文法得到项目集族，注：注释中的项目集==闭包，项目==产生式，项目集族也就是所有闭包的集合，写注释的时候混用了，希望读者能看懂
 void get_Clousure() {
 	int i = 0;//每个项目集的编号
 	Project p;
@@ -348,6 +350,7 @@ void get_Clousure() {
 				//扫描每个产生式，找到·的位置
 				if (clousure[i].project[j][k] == ' ') {
 					//debug时发现project后面，少写了一个[j]，导致vector溢出，这么小的错误debug了半天
+					//因为现在是对第i个项目集（闭包）的第j个项目（产生式）进行遍历，找到他·的位置，所以显然要用project[j].size()
 					if (k == clousure[i].project[j].size() - 1) {
 						//如果·在产生式最后，那么这个产生式不会有新的闭包，break，处理下一个产生式
 						break;
@@ -366,7 +369,8 @@ void get_Clousure() {
 							//遍历每个闭包的所有项目集
 							is_new_clousure = false;
 							if (new_clousure_project == clousure[m].project[n]) {
-								//这里的下标也是debug了半天，应该是跟第一条产生式的向前搜索符号集size对比，看是否一样，而不是跟整个项目集搜索符号集的大小比，少写了个[0]
+								//这里的下标也是debug了半天，应该是跟第一条产生式的向前搜索符号集size对比，看是否一样，因为如果跟第一条产生式的project和search_forward都一样，就能知道闭包必然也一样
+								//而不是跟整个项目集搜索符号集的大小比，第一次写的时候search_forward后面少写了个[0]，导致debug了半天浪费了时间，写程序还是应该先写思路伪码，不能着急
 								if (clousure[m].search_forward[0].size() != new_clousure_search_forward.size()) {
 									is_new_clousure = true;
 									break;
@@ -423,6 +427,7 @@ void get_Clousure() {
 	}
 }
 
+//debug时展示项目集和他们之间相互转化的函数，并验证其正确性
 void show_Clousure() {
 	for (int i = 0; i < clousure.size(); i++) {
 		printf("I%d:\n", i);
@@ -433,15 +438,119 @@ void show_Clousure() {
 				if (k == 0) cout << "->";
 			}
 			cout << ',';
+			int count = 0;
 			for (auto it = clousure[i].search_forward[j].begin(); it != clousure[i].search_forward[j].end(); it++) {
-				cout << *it << '/';
+				cout << *it;
+				
+				if (count != clousure[i].search_forward[j].size() - 1) cout << '/';
+				count++;
 			}
 			cout << endl;
+		}
+		for (auto& it : clousure[i].go) {
+			cout <<"input char: " << it.first <<" to clousure I" << it.second << endl;
 		}
 		cout << endl;
 	}
 }
 
+//得到项目集后，计算LR(1)文法的ACTION GOTO表
+bool get_LR1Table() {
+	/*
+	分为四种情况（思想方法见清华大学教材p146）
+	1. S’->S·,#      属于Ik，则ACTION表中[k,#]为acc
+	2. A->β·,a       属于Ik，则ACTION表中[k,a]为rj，表示用第j条产生式规约
+	3. A->α·aβ,b    属于Ik，且Ik移进a转移到Ij，则ACTION表中[k,a]为Sj，表示把移入符号a和状态j分别移入文法符号栈和状态符号栈
+	4. A->α·Bβ,a    属于Ik，且Ik移进B转移到Ij，则GOTO表中[k,B]为j，表示置当前文法符号栈顶为A，状态栈顶为j
+	*/
+	for (int i = 0; i < clousure.size(); i++) {
+		for (int j = 0; j < clousure[i].project.size(); j++) {
+			for (int k = 0; k < clousure[i].project[j].size(); k++) {
+				if (clousure[i].project[j][k] == ' ') {
+					//找到每条文法的·
+					if (k == clousure[i].project[j].size() - 1) {
+						//若·在文法的最后，要对式子进行规约
+						//分为1 2两种情况
+						if (clousure[i].project[j][0] == 'Z') {
+							//对应最上面注释的第一种情况S’->S·,#
+							map<string, char> m;
+							string state = to_string(i);
+							m[state] = '#';
+							if (table.find(m) != table.end() && table[m] != "acc") {
+								cout << "error";
+								return false;
+							}
+							else {
+								table[m] = "acc";
+							}
+						}
+						else {
+							//对应最上面注释的第二种情况A->β·,a
+							int G_num = 0;
+							for (int x = 0; x < G.size(); x++) {
+								vector<char> y(clousure[i].project[j]);
+								y.pop_back();//clousure[i].project[j]比二型文法多了最后的一个·，在vector里为space空格，pop出来便可以直接比较
+								if (y == G[x]) {
+									G_num = x;
+									break;
+								}
+							}
+							map<string, char> m;
+							string state = to_string(i);
+							for (auto it : clousure[i].search_forward[j]) {
+								m[state] = it;
+								if (table.find(m) != table.end() && table[m] != "r" + to_string(G_num)) {
+									cout << "error";
+									return false;
+								}
+								else {
+									table[m] = "r" + to_string(G_num);
+								}
+							}
+						}
+					}
+					else {
+						//否则就是移进
+						//分为3 4两种情况
+						char next_ch = clousure[i].project[j][k + 1];//·的下一个字符，判断是终结符还是非终结符，分为情况三四
+						if (terminal.find(next_ch) != terminal.end()) {
+							//A->α·aβ,b，对应上面的第三种情况
+							map<string, char> m;
+							m[to_string(i)] = next_ch;
+							if (table.find(m) != table.end() && table[m] != "S" + to_string(clousure[i].go[next_ch])) {
+								cout << "error";
+								return false;
+							}
+							else {
+								table[m] = "S"+to_string(clousure[i].go[next_ch]);
+							}
+						}
+						else {
+							//A->α·Bβ,a，对应上面的第四种情况
+							map<string, char> m;
+							m[to_string(i)] = next_ch;
+							if (table.find(m) != table.end() && table[m] != to_string(clousure[i].go[next_ch])) {
+								cout << "error";
+								return false;
+							}
+							else {
+								table[m] = to_string(clousure[i].go[next_ch]);
+							}
+						}
+					}
+					
+					//分析完这个·，就是分析完这条项目，break处理下一条项目
+					break;
+				}
+			}
+		}
+	}
+	return true;
+}
+
+void show_LR1Table() {
+	
+}
 int main() {
 	read_grammar2();
 	//show_grammar2();
@@ -450,5 +559,7 @@ int main() {
 	get_First();
 	//show_First();
 	get_Clousure();
-	show_Clousure();
+	//show_Clousure();
+	get_LR1Table();
+	//show_LR1Table();
 }
