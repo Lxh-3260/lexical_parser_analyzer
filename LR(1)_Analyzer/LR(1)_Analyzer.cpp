@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <stack>
 #include <numeric>
+#include <stdlib.h>
 
 #define debug cout
 
@@ -23,6 +24,7 @@ map<char, set<char>> nonterminal;//存放非终结符到其FIRST集合的映射，nonterminal.
 vector<string> token;//读入词法分析输出的token，并将其转换成我写的二型文法所能识别的符号串，即终结符（包括number，identifer，type，keyword，界符，运算符）
 
 map< map<string, char>, string> table; //LR分析表
+ofstream output;
 
 //项目集
 struct Project {
@@ -154,6 +156,15 @@ void show_token() {
 		temp += token[i];
 	}
 	debug << temp;
+}
+
+//得到token转换后的符号串序列
+string get_token_string() {
+	string temp;
+	for (int i = 0; i < token.size(); i++) {
+		temp += token[i];
+	}
+	return temp;
 }
 
 //根据二型文法得到各个符号的First集合
@@ -500,6 +511,9 @@ bool get_LR1Table() {
 							for (auto it : clousure[i].search_forward[j]) {
 								m[state] = it;
 								if (table.find(m) != table.end() && table[m] != "r" + to_string(G_num)) {
+									//debug << i;
+									//debug过程中发现table里，一个状态的一个字符移入，会有两个不同的归约，产生了归约归约冲突
+									//输出i找到有冲突的项目集,发现是运算式K的原因，注释掉有关K的文法，所写的文法又恢复成了LR1文法
 									cout << "error";
 									return false;
 								}
@@ -548,18 +562,178 @@ bool get_LR1Table() {
 	return true;
 }
 
+//debug过程中展示LR1项目表
 void show_LR1Table() {
-	
+	for (int i = -1; i < (int)clousure.size(); i++) {
+		if (i == -1) {
+			//输出ACTION GOTO的第一行“状态”
+			cout << std::left << setw(5) << "状态";
+		}
+		else {
+			//输出ACTION GOTO的第一列状态数
+			cout << std::left << setw(5) << i;
+		}
+		for (auto& it : terminal) {
+			//处理终结符的ACTION GOTO表
+			if (i == -1) {
+				//i==-1时输出ACTION GOTO的第一行终结符部分
+				cout << std::left << setw(4) << it.first;
+			}
+			else {
+				//i!=-1时输出ACTION GOTO表终结符部分的TABLE
+				map<string, char> m;
+				m[to_string(i)] = it.first;
+				cout << std::left << setw(4) << table[m];
+			}
+		}
+		//处理#的Table
+		if (i == -1) {
+			cout << std::left << setw(4) << '#';
+		}
+		else {
+			map<string, char> m;
+			m[to_string(i)] = '#';
+			cout << std::left << setw(4) << table[m];
+		}
+		for (auto& it : nonterminal) {
+			//处理非终结符的ACTION GOTO表
+			if (it.first == 'Z') {
+				continue;
+			}
+			if (i == -1) {
+				//i==-1时输出ACTION GOTO的第一行非终结符部分
+				cout << std::left << setw(4) << it.first;
+			}
+			else {
+				//i!=-1时输出ACTION GOTO表非终结符部分的TABLE
+				map<string, char> m;
+				m[to_string(i)] = it.first;
+				cout << std::left << setw(4) << table[m];
+			}
+		}
+		cout << endl;
+	}
 }
+
+//对输入的token，根据LR1的ACTION GOTO 表进行分析
+bool LR1_Analyze() {
+	cout << "步骤\t\t" << "状态栈\t\t\t\t" << "符号栈\t\t\t\t" << "待输入串\t\t\t\t" << "ACTION GO" << endl;
+	output << "步骤\t\t" << "状态栈\t\t\t\t" << "符号栈\t\t\t\t" << "待输入串\t\t\t\t" << "ACTION GO" << endl;
+	vector<string> status_stack;//状态栈
+	status_stack.push_back("0");//初始化状态栈
+	vector<char> symbol_stack;//符号栈
+	symbol_stack.push_back('#');//初始化符号栈
+	string str_token = get_token_string();//待输入串
+	str_token += "#";//初始化待输入串
+	int steps = 1;
+	while (true) {
+		cout << steps++ << "\t\t";
+		output << steps++ << "\t\t";
+		for (int i = 0; i < status_stack.size(); i++) {
+			cout << status_stack[i];
+			output << status_stack[i];
+		}
+		cout << "\t\t\t\t";
+		output << "\t\t\t\t";
+		for (int i = 0; i < symbol_stack.size(); i++) {
+			cout << symbol_stack[i];
+			output << symbol_stack[i];
+		}
+		cout << "\t\t\t\t";
+		output << "\t\t\t\t";
+		for (int i = 0; i < str_token.size(); i++) {
+			cout << str_token[i];
+			output << str_token[i];
+		}
+		cout << "\t\t\t\t";
+		output << "\t\t\t\t";
+		string status_top = status_stack[status_stack.size() - 1];//状态栈最右边那个状态
+		char ch_head = str_token[0];//待输入串最左边那个字符
+		map<string, char> m;
+		m[status_top] = ch_head;//根据映射，到ACTION GOTO表里找对应位置的字符串是acc 还是rk 还是Sk
+		if (table[m] == "acc") {
+			//表里对应位置的字符串为acc，则表示分析成功
+			cout << "YES!" << endl;
+			output << "YES!" << endl;
+			return true;
+		}
+		else if (table[m][0] == 'S') {
+			//表里对应位置的字符串第一位为S，表里的值为Sk，则表示要进行移入操作，在状态栈中加入状态k，将待输入符号串移入一位符号栈
+			string temp;
+			for (int i = 1; i < table[m].size(); i++) temp += table[m][i];
+			status_stack.push_back(temp);
+			symbol_stack.push_back(str_token[0]);
+			str_token = str_token.substr(1);
+			cout << table[m] << "：将状态" << atoi(temp.c_str()) << "压入状态栈" << endl;
+			output << table[m] << "：将状态" << atoi(temp.c_str()) << "压入状态栈" << endl;
+		}
+		else if (table[m][0] == 'r') {
+			/*表里对应位置的字符串第一位为r，表里的值为rk，则表示要进行归约操作，操作如下：
+			1.找到对应的文法，文法右边有几个字符，符号栈状态栈就要pop几次
+			2.与此同时，符号栈push_back该条文法的左边字符，此时的状态栈顶遇到左边的字符，转入GOTO表中的那个状态，并将该状态压入栈中
+			 */
+			string temp;
+			for (int i = 1; i < table[m].size(); i++) temp += table[m][i];
+			int pop_frequency = G[atoi(temp.c_str())].size()-1;
+			while (pop_frequency--) {
+				status_stack.pop_back();
+				symbol_stack.pop_back();
+			}
+			symbol_stack.push_back(G[atoi(temp.c_str())][0]);
+			char symbol_temp = G[atoi(temp.c_str())][0];
+			string status_temp = status_stack[status_stack.size() - 1];
+			map<string, char> m_temp;
+			m_temp[status_temp] = symbol_temp;
+			status_stack.push_back(table[m_temp]);
+			cout << table[m] << "：用";
+			output << table[m] << "：用";
+			for (int i = 0; i < G[atoi(temp.c_str())].size(); i++) {
+				cout << G[atoi(temp.c_str())][i];
+				output << G[atoi(temp.c_str())][i];
+				if (i == 0) {
+					cout << "->";
+					output << "->";
+				}
+			}
+			cout << "归约，并将状态" << table[m_temp] << "入栈" << endl;
+			output << "归约，并将状态" << table[m_temp] << "入栈" << endl;
+		}
+		else {
+			//表里那个位置为空，有两种情况，
+			//1.去@那一列找，并将Sk的k入状态栈
+			//2.表示分析出错
+			string temp_status = status_stack[status_stack.size() - 1];
+			map<string, char> temp_m;
+			temp_m[temp_status] = '@';
+			if (table.find(temp_m) != table.end()) {
+				string temp;
+				for (int i = 1; i < table[temp_m].size(); i++) temp += table[temp_m][i];
+				status_stack.push_back(temp);
+				symbol_stack.push_back('@');
+				continue;
+			}
+			else {
+				cout << "NO!" << endl;
+				output << "NO!" << endl;
+				return false;
+			}
+		}
+	}
+}
+
 int main() {
 	read_grammar2();
 	//show_grammar2();
 	deal_with_token();
 	//show_token();
+	//cout << endl;
 	get_First();
 	//show_First();
 	get_Clousure();
 	//show_Clousure();
 	get_LR1Table();
 	//show_LR1Table();
+	output.open("LR(1)Analyzer_Program.txt");
+	LR1_Analyze();
+	output.close();
 }

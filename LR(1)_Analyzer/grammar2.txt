@@ -20,7 +20,7 @@ E->@
 F->G
 G->rn;
 G->ri;
-G->rK;
+#G->rK;
 #H为声明语句，I为赋值语句，由一个：type identifier; 或者type identifier o= value;组成其中o为计算运算符+-*/&^%|
 #t为type，J表示value，可以直接是一个number（常量包括科学计数法和虚数）
 #K表示是number，标识符和运算符的结合，是运算语句，可以有括号运算
@@ -28,17 +28,17 @@ G->rK;
 F->H
 H->ti;
 H->ti=J;
-H->ti=K;
+#H->ti=K;
 F->I
 I->i=J;
 I->io=J;
-I->i=K;
-I->io=K;
+#I->i=K;
+#I->io=K;
 J->i
 J->n
-K->JoK
-K->J
-K->(K)
+#K->JoK
+#K->J
+#K->(K)
 L->JpJ
 #M为循环语句，f为for，N为for括号里的内容，E为函数体的声明，上面定义过了
 #for循环体的三个变量其实都可以为空，多7种排列组合，不再加以赘述
@@ -51,8 +51,8 @@ N->HL;O
 N->IL;O
 O->i=J
 O->io=J
-O->i=K
-O->io=K
+#O->i=K
+#O->io=K
 M->w(L){E}
 #P为分支转移，j表示if，k表示else
 F->P

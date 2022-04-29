@@ -1,17 +1,26 @@
 int parameter ( int n ) {
-    if ( n == 1 ) return 1 ;
-    else return ( n + 2 ) / 3 ;
+    if ( n == 1 ) {
+        return 1 ;
+    }
+    else {
+        return n ;
+    }
 }
 int main ( ) {
     int k = 0 ;
-    int a = 10+8i , b = 2.5e-13 ;
+    int a = 10+8i ;
+    int b = 2.5e-13 ;
     double c = 0.314e+10 ;
 
-    float _lxh = 1.0 ;
     double lxh = 1.314 ;
+    float _lxh = 1.0 ;
 
-    if ( _lxh >= 0 ) _lxh += 2.3 ;
-    else lxh = 2 ^ 3 ;
+    if ( _lxh >= 0 ) {
+        _lxh += 2.3 ;
+    }
+    else {
+        lxh -= 4 ;
+    }
     
     while ( lxh >= _lxh ) {
         lxh -= c ;
