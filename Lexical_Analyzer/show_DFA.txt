@@ -1,0 +1,78 @@
+NFA_TO_DFA Result:
+DFA的第0个子集为:A , I , L , M , O , S
+0	input	%	to	1
+0	input	&	to	1
+0	input	(	to	1
+0	input	)	to	1
+0	input	*	to	2
+0	input	+	to	2
+0	input	,	to	1
+0	input	-	to	2
+0	input	/	to	2
+0	input	0	to	3
+0	input	;	to	1
+0	input	<	to	2
+0	input	=	to	2
+0	input	>	to	2
+0	input	[	to	1
+0	input	]	to	1
+0	input	^	to	1
+0	input	_	to	4
+0	input	a	to	4
+0	input	c	to	5
+0	input	e	to	4
+0	input	i	to	4
+0	input	{	to	1
+0	input	}	to	1
+DFA的第1个子集为:Z
+DFA的第2个子集为:E , Z
+2	input	=	to	1
+DFA的第3个子集为:M , N , T , Z
+3	input	+	to	6
+3	input	-	to	6
+3	input	.	to	7
+3	input	0	to	8
+3	input	c	to	8
+3	input	e	to	9
+DFA的第4个子集为:J , Z
+4	input	0	to	4
+4	input	_	to	4
+4	input	a	to	4
+4	input	c	to	4
+4	input	e	to	4
+4	input	i	to	4
+DFA的第5个子集为:B , M , N , T , Z
+5	input	+	to	6
+5	input	-	to	6
+5	input	.	to	7
+5	input	0	to	5
+5	input	c	to	5
+5	input	e	to	9
+DFA的第6个子集为:Q
+6	input	0	to	6
+6	input	c	to	6
+6	input	i	to	1
+DFA的第7个子集为:H
+7	input	0	to	1
+7	input	c	to	10
+DFA的第8个子集为:M , N , T
+8	input	+	to	6
+8	input	-	to	6
+8	input	.	to	7
+8	input	0	to	8
+8	input	c	to	8
+8	input	e	to	9
+DFA的第9个子集为:G
+9	input	+	to	11
+9	input	-	to	11
+9	input	c	to	12
+DFA的第10个子集为:C , Z
+10	input	0	to	10
+10	input	c	to	10
+10	input	e	to	9
+DFA的第11个子集为:D
+11	input	c	to	12
+DFA的第12个子集为:F , Z
+12	input	0	to	12
+12	input	c	to	12
+Final state is : 1 , 2 , 3 , 4 , 5 , 10 , 12

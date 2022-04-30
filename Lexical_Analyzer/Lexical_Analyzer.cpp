@@ -119,13 +119,24 @@ void create_NFA() {
 
 //debug时用于展示nfa结点
 void show_NFA_node() {
+	ofstream out;
+	out.open("show_NFA.txt");
+	debug << "NFA的所有结点如下:" << endl;
+	out << "NFA的所有结点如下:" << endl;
 	for (auto i = nfa.node.begin(); i != nfa.node.end(); i++) {
 		debug << *i << endl;
+		out << *i << endl;
 	}
+	out << "NFA的所有边如下:" << endl;
+	for (int i = 0; i < nfa.edge_num; i++) {
+		out << nfa.edge[i].start << "	" << nfa.edge[i].val << "	" << nfa.edge[i].end << endl;
+	}
+	out.close();
 }
 
 //debug时用于展示nfa的边
 void show_NFA_edge() {
+	debug << "NFA的所有边如下:" << endl;
 	for (int i = 0; i < nfa.edge_num; i++) {
 		debug << nfa.edge[i].start << "	" << nfa.edge[i].val << "	" << nfa.edge[i].end << endl;
 	}
@@ -166,11 +177,13 @@ set<char> e_closure(set<char> I, NFA_node N) {
 
 //通过调用move和e_closure将NFA转化成DFA
 void NFA_to_DFA() {
-	//cout << "NFA_TO_DFA Result:" << endl;
+	ofstream out;
+	out.open("show_DFA.txt");
+	out << "NFA_TO_DFA Result:" << endl;
 	bool marked[MAX_NODES] = { false };
 	set<char> T0, T1;
 
-	//注意这里要手动插入初态到T0
+	//注意这里要手动插入初态到T0，如果想测试不同的样例需要换不同的初态集合插入！
 	T0.insert('L'); T0.insert('O'); T0.insert('I'); T0.insert('A'); T0.insert('S'); T0.insert('M');
 	//T0.insert('0');//测试test文件中的的dfa正确性用的，对比书上p52的状态图检验其正确性
 
@@ -184,13 +197,15 @@ void NFA_to_DFA() {
 		marked[i] = true;
 		
 		//输出DFA的每个子集C[i]
-		/*printf("第%d个集合为：", i);
+		out << "DFA的第" << i << "个子集为:";
 		auto count_size = C[i].size();
 		for (auto it = C[i].begin(); it != C[i].end(); it++) {
-			debug << *it ;
-			if (--count_size) debug << " , ";
+			out << *it;
+			if (--count_size) {
+				out << " , ";
+			}
 		}
-		debug << endl;*/
+		out << endl;
 
 		for (auto it = weight.begin(); it != weight.end(); it++) {//weight.size()为nfa总的val值数量 
 			int j = 0;
@@ -217,12 +232,13 @@ void NFA_to_DFA() {
 						}
 						C[k] = temp;
 					}
-					dfa.node.insert(i);
+					dfa.node.insert(i);//插入初态
+					dfa.node.insert(k);//插入终态结点
 					dfa.edge[dfa.edge_num].start = i;
 					dfa.edge[dfa.edge_num].val = *it;
 					dfa.edge[dfa.edge_num].end = k;
 					dfa.edge_num++;
-					//debug << i << "	input	" << *it << "	to	" << k << endl;
+					out << i << "	input	" << *it << "	to	" << k << endl;
 					//debug << i << " " << k << " " << *it << endl;//https://csacademy.com/app/graph_editor/的输出格式，生成有向图用的
 				}
 				j++;
@@ -252,16 +268,18 @@ void NFA_to_DFA() {
 		i++;
 	}
 	//输出DFA终态结点
-	/*debug << "Final state is : ";
+	out << "Final state is : ";
 	for (int a = 0; a < dfa_final_state.size(); a++) {
-		cout << dfa_final_state[a];
-		if (a != dfa_final_state.size() - 1) cout << " , ";
+		out << dfa_final_state[a];
+		if (a != dfa_final_state.size() - 1) out << " , ";
 	}
-	debug << endl;*/
+	out << endl;
+	out.close();
 }
 
 //debug用于检查dfa所有的结点
 void show_DFA_node() {
+	debug << "DFA的所有结点如下:" << endl;
 	for (auto i = dfa.node.begin(); i != dfa.node.end(); i++) {
 		debug << *i << endl;
 	}
@@ -341,7 +359,6 @@ void scan() {
 		//开始处理每行的token
 		for (int temp1 = 0; temp1 < token.size(); temp1++) {
 			//token[temp1]表示每一行的第(temp1-1)个待识别的token
-
 			//求出keyword二维数组总共有多少行
 			int all = sizeof(keyword) / sizeof(char);
 			int column = sizeof(keyword[0]) / sizeof(keyword[0][0]);
@@ -448,7 +465,7 @@ int main() {
 	create_NFA();
 	//show_NFA_node();
 	//show_NFA_edge();
-	NFA_to_DFA();
+	NFA_to_DFA();//输出至show_DFA.txt
 	//show_DFA_node();
 	//show_DFA_edge();
 	

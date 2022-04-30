@@ -24,7 +24,7 @@ map<char, set<char>> nonterminal;//存放非终结符到其FIRST集合的映射，nonterminal.
 vector<string> token;//读入词法分析输出的token，并将其转换成我写的二型文法所能识别的符号串，即终结符（包括number，identifer，type，keyword，界符，运算符）
 
 map< map<string, char>, string> table; //LR分析表
-ofstream output;
+ofstream output;//输出语法分析的过程到LR(1)Analyzer_Program.txt
 
 //项目集
 struct Project {
@@ -34,6 +34,7 @@ struct Project {
 };
 vector<Project> clousure;//clousure表示所有项目集的闭包
 
+//读入二型文法
 void read_grammar2() {
 	ifstream read("grammar2.txt");
 	string content;
@@ -363,7 +364,7 @@ void get_Clousure() {
 					//debug时发现project后面，少写了一个[j]，导致vector溢出，这么小的错误debug了半天
 					//因为现在是对第i个项目集（闭包）的第j个项目（产生式）进行遍历，找到他·的位置，所以显然要用project[j].size()
 					if (k == clousure[i].project[j].size() - 1) {
-						//如果·在产生式最后，那么这个产生式不会有新的闭包，break，处理下一个产生式
+						//如果·在产生式最后，那么这个产生式不会有闭包间的GOTO边，break，处理下一个产生式
 						break;
 					}
 					//否则·不在产生式的最后，则将点后移一位
@@ -627,8 +628,8 @@ bool LR1_Analyze() {
 	str_token += "#";//初始化待输入串
 	int steps = 1;
 	while (true) {
+		output << steps << "\t\t";
 		cout << steps++ << "\t\t";
-		output << steps++ << "\t\t";
 		for (int i = 0; i < status_stack.size(); i++) {
 			cout << status_stack[i];
 			output << status_stack[i];
@@ -674,7 +675,7 @@ bool LR1_Analyze() {
 			 */
 			string temp;
 			for (int i = 1; i < table[m].size(); i++) temp += table[m][i];
-			int pop_frequency = G[atoi(temp.c_str())].size()-1;
+			int pop_frequency = G[atoi(temp.c_str())].size() - 1;
 			while (pop_frequency--) {
 				status_stack.pop_back();
 				symbol_stack.pop_back();
@@ -699,20 +700,24 @@ bool LR1_Analyze() {
 			output << "归约，并将状态" << table[m_temp] << "入栈" << endl;
 		}
 		else {
-			//表里那个位置为空，有两种情况，
-			//1.去@那一列找，并将Sk的k入状态栈
-			//2.表示分析出错
+			/*表里那个位置为空，有两种情况，
+			1.去@那一列找，并将Sk的k入状态栈
+			2.表示分析出错*/
 			string temp_status = status_stack[status_stack.size() - 1];
 			map<string, char> temp_m;
 			temp_m[temp_status] = '@';
 			if (table.find(temp_m) != table.end()) {
+				//对应上面注释的第一种情况，去@那一列找，并将Sk的k入状态栈
 				string temp;
 				for (int i = 1; i < table[temp_m].size(); i++) temp += table[temp_m][i];
 				status_stack.push_back(temp);
 				symbol_stack.push_back('@');
+				cout << "要用空符号集归约，本文法的空符号集为@，故在状态栈加入" << temp << "符号栈加入@" << endl;
+				output << "要用空符号集归约，本文法的空符号集为@，故在状态栈加入" << temp << "符号栈加入@" << endl;
 				continue;
 			}
 			else {
+				//对应上面注释的第二种情况 分析出错
 				cout << "NO!" << endl;
 				output << "NO!" << endl;
 				return false;
@@ -726,7 +731,6 @@ int main() {
 	//show_grammar2();
 	deal_with_token();
 	//show_token();
-	//cout << endl;
 	get_First();
 	//show_First();
 	get_Clousure();

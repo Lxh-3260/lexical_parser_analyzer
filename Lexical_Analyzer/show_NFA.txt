@@ -1,0 +1,106 @@
+NFA的所有结点如下:
+A
+B
+C
+D
+E
+F
+G
+H
+I
+J
+L
+M
+N
+O
+Q
+S
+T
+Z
+NFA的所有边如下:
+L	,	Z
+L	;	Z
+L	[	Z
+L	]	Z
+L	(	Z
+L	)	Z
+L	{	Z
+L	}	Z
+O	+	Z
+O	-	Z
+O	*	Z
+O	/	Z
+O	%	Z
+O	^	Z
+O	&	Z
+O	=	Z
+O	>	Z
+O	<	Z
+O	+	E
+O	-	E
+O	*	E
+O	/	E
+O	=	E
+O	>	E
+O	<	E
+E	=	Z
+I	_	Z
+I	a	Z
+I	e	Z
+I	i	Z
+I	_	J
+I	a	J
+I	e	J
+I	i	J
+J	_	Z
+J	0	Z
+J	c	Z
+J	a	Z
+J	e	Z
+J	i	Z
+J	_	J
+J	0	J
+J	c	J
+J	a	J
+J	e	J
+J	i	J
+A	c	Z
+A	0	Z
+A	c	B
+B	0	Z
+B	c	Z
+B	0	B
+B	c	B
+S	0	T
+S	c	T
+T	0	T
+T	c	T
+T	.	H
+T	e	G
+H	c	Z
+H	0	Z
+H	c	C
+C	0	Z
+C	c	Z
+C	0	C
+C	c	C
+C	e	G
+G	+	D
+G	-	D
+G	c	Z
+G	c	F
+D	c	Z
+D	c	F
+F	0	Z
+F	c	Z
+F	0	F
+F	c	F
+M	0	M
+M	c	M
+M	0	N
+M	c	N
+N	+	Q
+N	-	Q
+Q	0	Q
+Q	c	Q
+Q	i	Z
