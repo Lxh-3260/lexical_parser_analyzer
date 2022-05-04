@@ -1,0 +1,780 @@
+I0:
+Z->，S,#
+S->，A,#
+A->，BA,#
+A->，@,#
+B->，ti(D){E},#/t
+input char: @ to clousure I4
+input char: A to clousure I2
+input char: B to clousure I3
+input char: S to clousure I1
+input char: t to clousure I5
+
+I1:
+Z->S，,#
+
+I2:
+S->A，,#
+
+I3:
+A->B，A,#
+A->，BA,#
+A->，@,#
+B->，ti(D){E},#/t
+input char: @ to clousure I4
+input char: A to clousure I6
+input char: B to clousure I3
+input char: t to clousure I5
+
+I4:
+A->@，,#
+
+I5:
+B->t，i(D){E},#/t
+input char: i to clousure I7
+
+I6:
+A->BA，,#
+
+I7:
+B->ti，(D){E},#/t
+input char: ( to clousure I8
+
+I8:
+B->ti(，D){E},#/t
+D->，ti,)
+D->，ti,D,)
+D->，@,)
+input char: @ to clousure I11
+input char: D to clousure I9
+input char: t to clousure I10
+
+I9:
+B->ti(D，){E},#/t
+input char: ) to clousure I12
+
+I10:
+D->t，i,)
+D->t，i,D,)
+input char: i to clousure I13
+
+I11:
+D->@，,)
+
+I12:
+B->ti(D)，{E},#/t
+input char: { to clousure I14
+
+I13:
+D->ti，,)
+D->ti，,D,)
+input char: , to clousure I15
+
+I14:
+B->ti(D){，E},#/t
+E->，FE,}
+E->，@,}
+F->，G,b/c/f/i/j/r/t/w/}
+F->，H,b/c/f/i/j/r/t/w/}
+F->，I,b/c/f/i/j/r/t/w/}
+F->，M,b/c/f/i/j/r/t/w/}
+F->，P,b/c/f/i/j/r/t/w/}
+F->，Q,b/c/f/i/j/r/t/w/}
+F->，R,b/c/f/i/j/r/t/w/}
+G->，rn;,b/c/f/i/j/r/t/w/}
+G->，ri;,b/c/f/i/j/r/t/w/}
+H->，ti;,b/c/f/i/j/r/t/w/}
+H->，ti=J;,b/c/f/i/j/r/t/w/}
+I->，i=J;,b/c/f/i/j/r/t/w/}
+I->，io=J;,b/c/f/i/j/r/t/w/}
+M->，f(N){E},b/c/f/i/j/r/t/w/}
+M->，w(L){E},b/c/f/i/j/r/t/w/}
+P->，j(L){E},b/c/f/i/j/r/t/w/}
+P->，j(L){E}k{E},b/c/f/i/j/r/t/w/}
+Q->，b;,b/c/f/i/j/r/t/w/}
+R->，c;,b/c/f/i/j/r/t/w/}
+input char: @ to clousure I18
+input char: E to clousure I16
+input char: F to clousure I17
+input char: G to clousure I19
+input char: H to clousure I20
+input char: I to clousure I21
+input char: M to clousure I22
+input char: P to clousure I23
+input char: Q to clousure I24
+input char: R to clousure I25
+input char: b to clousure I32
+input char: c to clousure I33
+input char: f to clousure I29
+input char: i to clousure I28
+input char: j to clousure I31
+input char: r to clousure I26
+input char: t to clousure I27
+input char: w to clousure I30
+
+I15:
+D->ti,，D,)
+D->，ti,)
+D->，ti,D,)
+D->，@,)
+input char: @ to clousure I11
+input char: D to clousure I34
+input char: t to clousure I10
+
+I16:
+B->ti(D){E，},#/t
+input char: } to clousure I35
+
+I17:
+E->F，E,}
+E->，FE,}
+E->，@,}
+F->，G,b/c/f/i/j/r/t/w/}
+F->，H,b/c/f/i/j/r/t/w/}
+F->，I,b/c/f/i/j/r/t/w/}
+F->，M,b/c/f/i/j/r/t/w/}
+F->，P,b/c/f/i/j/r/t/w/}
+F->，Q,b/c/f/i/j/r/t/w/}
+F->，R,b/c/f/i/j/r/t/w/}
+G->，rn;,b/c/f/i/j/r/t/w/}
+G->，ri;,b/c/f/i/j/r/t/w/}
+H->，ti;,b/c/f/i/j/r/t/w/}
+H->，ti=J;,b/c/f/i/j/r/t/w/}
+I->，i=J;,b/c/f/i/j/r/t/w/}
+I->，io=J;,b/c/f/i/j/r/t/w/}
+M->，f(N){E},b/c/f/i/j/r/t/w/}
+M->，w(L){E},b/c/f/i/j/r/t/w/}
+P->，j(L){E},b/c/f/i/j/r/t/w/}
+P->，j(L){E}k{E},b/c/f/i/j/r/t/w/}
+Q->，b;,b/c/f/i/j/r/t/w/}
+R->，c;,b/c/f/i/j/r/t/w/}
+input char: @ to clousure I18
+input char: E to clousure I36
+input char: F to clousure I17
+input char: G to clousure I19
+input char: H to clousure I20
+input char: I to clousure I21
+input char: M to clousure I22
+input char: P to clousure I23
+input char: Q to clousure I24
+input char: R to clousure I25
+input char: b to clousure I32
+input char: c to clousure I33
+input char: f to clousure I29
+input char: i to clousure I28
+input char: j to clousure I31
+input char: r to clousure I26
+input char: t to clousure I27
+input char: w to clousure I30
+
+I18:
+E->@，,}
+
+I19:
+F->G，,b/c/f/i/j/r/t/w/}
+
+I20:
+F->H，,b/c/f/i/j/r/t/w/}
+
+I21:
+F->I，,b/c/f/i/j/r/t/w/}
+
+I22:
+F->M，,b/c/f/i/j/r/t/w/}
+
+I23:
+F->P，,b/c/f/i/j/r/t/w/}
+
+I24:
+F->Q，,b/c/f/i/j/r/t/w/}
+
+I25:
+F->R，,b/c/f/i/j/r/t/w/}
+
+I26:
+G->r，n;,b/c/f/i/j/r/t/w/}
+G->r，i;,b/c/f/i/j/r/t/w/}
+input char: i to clousure I38
+input char: n to clousure I37
+
+I27:
+H->t，i;,b/c/f/i/j/r/t/w/}
+H->t，i=J;,b/c/f/i/j/r/t/w/}
+input char: i to clousure I39
+
+I28:
+I->i，=J;,b/c/f/i/j/r/t/w/}
+I->i，o=J;,b/c/f/i/j/r/t/w/}
+input char: = to clousure I40
+input char: o to clousure I41
+
+I29:
+M->f，(N){E},b/c/f/i/j/r/t/w/}
+input char: ( to clousure I42
+
+I30:
+M->w，(L){E},b/c/f/i/j/r/t/w/}
+input char: ( to clousure I43
+
+I31:
+P->j，(L){E},b/c/f/i/j/r/t/w/}
+P->j，(L){E}k{E},b/c/f/i/j/r/t/w/}
+input char: ( to clousure I44
+
+I32:
+Q->b，;,b/c/f/i/j/r/t/w/}
+input char: ; to clousure I45
+
+I33:
+R->c，;,b/c/f/i/j/r/t/w/}
+input char: ; to clousure I46
+
+I34:
+D->ti,D，,)
+
+I35:
+B->ti(D){E}，,#/t
+
+I36:
+E->FE，,}
+
+I37:
+G->rn，;,b/c/f/i/j/r/t/w/}
+input char: ; to clousure I47
+
+I38:
+G->ri，;,b/c/f/i/j/r/t/w/}
+input char: ; to clousure I48
+
+I39:
+H->ti，;,b/c/f/i/j/r/t/w/}
+H->ti，=J;,b/c/f/i/j/r/t/w/}
+input char: ; to clousure I49
+input char: = to clousure I50
+
+I40:
+I->i=，J;,b/c/f/i/j/r/t/w/}
+J->，i,;
+J->，n,;
+input char: J to clousure I51
+input char: i to clousure I52
+input char: n to clousure I53
+
+I41:
+I->io，=J;,b/c/f/i/j/r/t/w/}
+input char: = to clousure I54
+
+I42:
+M->f(，N){E},b/c/f/i/j/r/t/w/}
+N->，HL;O,)
+N->，IL;O,)
+H->，ti;,i/n
+H->，ti=J;,i/n
+I->，i=J;,i/n
+I->，io=J;,i/n
+input char: H to clousure I56
+input char: I to clousure I57
+input char: N to clousure I55
+input char: i to clousure I59
+input char: t to clousure I58
+
+I43:
+M->w(，L){E},b/c/f/i/j/r/t/w/}
+L->，JpJ,)
+J->，i,p
+J->，n,p
+input char: J to clousure I61
+input char: L to clousure I60
+input char: i to clousure I62
+input char: n to clousure I63
+
+I44:
+P->j(，L){E},b/c/f/i/j/r/t/w/}
+P->j(，L){E}k{E},b/c/f/i/j/r/t/w/}
+L->，JpJ,)
+J->，i,p
+J->，n,p
+input char: J to clousure I61
+input char: L to clousure I64
+input char: i to clousure I62
+input char: n to clousure I63
+
+I45:
+Q->b;，,b/c/f/i/j/r/t/w/}
+
+I46:
+R->c;，,b/c/f/i/j/r/t/w/}
+
+I47:
+G->rn;，,b/c/f/i/j/r/t/w/}
+
+I48:
+G->ri;，,b/c/f/i/j/r/t/w/}
+
+I49:
+H->ti;，,b/c/f/i/j/r/t/w/}
+
+I50:
+H->ti=，J;,b/c/f/i/j/r/t/w/}
+J->，i,;
+J->，n,;
+input char: J to clousure I65
+input char: i to clousure I52
+input char: n to clousure I53
+
+I51:
+I->i=J，;,b/c/f/i/j/r/t/w/}
+input char: ; to clousure I66
+
+I52:
+J->i，,;
+
+I53:
+J->n，,;
+
+I54:
+I->io=，J;,b/c/f/i/j/r/t/w/}
+J->，i,;
+J->，n,;
+input char: J to clousure I67
+input char: i to clousure I52
+input char: n to clousure I53
+
+I55:
+M->f(N，){E},b/c/f/i/j/r/t/w/}
+input char: ) to clousure I68
+
+I56:
+N->H，L;O,)
+L->，JpJ,;
+J->，i,p
+J->，n,p
+input char: J to clousure I70
+input char: L to clousure I69
+input char: i to clousure I62
+input char: n to clousure I63
+
+I57:
+N->I，L;O,)
+L->，JpJ,;
+J->，i,p
+J->，n,p
+input char: J to clousure I70
+input char: L to clousure I71
+input char: i to clousure I62
+input char: n to clousure I63
+
+I58:
+H->t，i;,i/n
+H->t，i=J;,i/n
+input char: i to clousure I72
+
+I59:
+I->i，=J;,i/n
+I->i，o=J;,i/n
+input char: = to clousure I73
+input char: o to clousure I74
+
+I60:
+M->w(L，){E},b/c/f/i/j/r/t/w/}
+input char: ) to clousure I75
+
+I61:
+L->J，pJ,)
+input char: p to clousure I76
+
+I62:
+J->i，,p
+
+I63:
+J->n，,p
+
+I64:
+P->j(L，){E},b/c/f/i/j/r/t/w/}
+P->j(L，){E}k{E},b/c/f/i/j/r/t/w/}
+input char: ) to clousure I77
+
+I65:
+H->ti=J，;,b/c/f/i/j/r/t/w/}
+input char: ; to clousure I78
+
+I66:
+I->i=J;，,b/c/f/i/j/r/t/w/}
+
+I67:
+I->io=J，;,b/c/f/i/j/r/t/w/}
+input char: ; to clousure I79
+
+I68:
+M->f(N)，{E},b/c/f/i/j/r/t/w/}
+input char: { to clousure I80
+
+I69:
+N->HL，;O,)
+input char: ; to clousure I81
+
+I70:
+L->J，pJ,;
+input char: p to clousure I82
+
+I71:
+N->IL，;O,)
+input char: ; to clousure I83
+
+I72:
+H->ti，;,i/n
+H->ti，=J;,i/n
+input char: ; to clousure I84
+input char: = to clousure I85
+
+I73:
+I->i=，J;,i/n
+J->，i,;
+J->，n,;
+input char: J to clousure I86
+input char: i to clousure I52
+input char: n to clousure I53
+
+I74:
+I->io，=J;,i/n
+input char: = to clousure I87
+
+I75:
+M->w(L)，{E},b/c/f/i/j/r/t/w/}
+input char: { to clousure I88
+
+I76:
+L->Jp，J,)
+J->，i,)
+J->，n,)
+input char: J to clousure I89
+input char: i to clousure I90
+input char: n to clousure I91
+
+I77:
+P->j(L)，{E},b/c/f/i/j/r/t/w/}
+P->j(L)，{E}k{E},b/c/f/i/j/r/t/w/}
+input char: { to clousure I92
+
+I78:
+H->ti=J;，,b/c/f/i/j/r/t/w/}
+
+I79:
+I->io=J;，,b/c/f/i/j/r/t/w/}
+
+I80:
+M->f(N){，E},b/c/f/i/j/r/t/w/}
+E->，FE,}
+E->，@,}
+F->，G,b/c/f/i/j/r/t/w/}
+F->，H,b/c/f/i/j/r/t/w/}
+F->，I,b/c/f/i/j/r/t/w/}
+F->，M,b/c/f/i/j/r/t/w/}
+F->，P,b/c/f/i/j/r/t/w/}
+F->，Q,b/c/f/i/j/r/t/w/}
+F->，R,b/c/f/i/j/r/t/w/}
+G->，rn;,b/c/f/i/j/r/t/w/}
+G->，ri;,b/c/f/i/j/r/t/w/}
+H->，ti;,b/c/f/i/j/r/t/w/}
+H->，ti=J;,b/c/f/i/j/r/t/w/}
+I->，i=J;,b/c/f/i/j/r/t/w/}
+I->，io=J;,b/c/f/i/j/r/t/w/}
+M->，f(N){E},b/c/f/i/j/r/t/w/}
+M->，w(L){E},b/c/f/i/j/r/t/w/}
+P->，j(L){E},b/c/f/i/j/r/t/w/}
+P->，j(L){E}k{E},b/c/f/i/j/r/t/w/}
+Q->，b;,b/c/f/i/j/r/t/w/}
+R->，c;,b/c/f/i/j/r/t/w/}
+input char: @ to clousure I18
+input char: E to clousure I93
+input char: F to clousure I17
+input char: G to clousure I19
+input char: H to clousure I20
+input char: I to clousure I21
+input char: M to clousure I22
+input char: P to clousure I23
+input char: Q to clousure I24
+input char: R to clousure I25
+input char: b to clousure I32
+input char: c to clousure I33
+input char: f to clousure I29
+input char: i to clousure I28
+input char: j to clousure I31
+input char: r to clousure I26
+input char: t to clousure I27
+input char: w to clousure I30
+
+I81:
+N->HL;，O,)
+O->，i=J,)
+O->，io=J,)
+input char: O to clousure I94
+input char: i to clousure I95
+
+I82:
+L->Jp，J,;
+J->，i,;
+J->，n,;
+input char: J to clousure I96
+input char: i to clousure I52
+input char: n to clousure I53
+
+I83:
+N->IL;，O,)
+O->，i=J,)
+O->，io=J,)
+input char: O to clousure I97
+input char: i to clousure I95
+
+I84:
+H->ti;，,i/n
+
+I85:
+H->ti=，J;,i/n
+J->，i,;
+J->，n,;
+input char: J to clousure I98
+input char: i to clousure I52
+input char: n to clousure I53
+
+I86:
+I->i=J，;,i/n
+input char: ; to clousure I99
+
+I87:
+I->io=，J;,i/n
+J->，i,;
+J->，n,;
+input char: J to clousure I100
+input char: i to clousure I52
+input char: n to clousure I53
+
+I88:
+M->w(L){，E},b/c/f/i/j/r/t/w/}
+E->，FE,}
+E->，@,}
+F->，G,b/c/f/i/j/r/t/w/}
+F->，H,b/c/f/i/j/r/t/w/}
+F->，I,b/c/f/i/j/r/t/w/}
+F->，M,b/c/f/i/j/r/t/w/}
+F->，P,b/c/f/i/j/r/t/w/}
+F->，Q,b/c/f/i/j/r/t/w/}
+F->，R,b/c/f/i/j/r/t/w/}
+G->，rn;,b/c/f/i/j/r/t/w/}
+G->，ri;,b/c/f/i/j/r/t/w/}
+H->，ti;,b/c/f/i/j/r/t/w/}
+H->，ti=J;,b/c/f/i/j/r/t/w/}
+I->，i=J;,b/c/f/i/j/r/t/w/}
+I->，io=J;,b/c/f/i/j/r/t/w/}
+M->，f(N){E},b/c/f/i/j/r/t/w/}
+M->，w(L){E},b/c/f/i/j/r/t/w/}
+P->，j(L){E},b/c/f/i/j/r/t/w/}
+P->，j(L){E}k{E},b/c/f/i/j/r/t/w/}
+Q->，b;,b/c/f/i/j/r/t/w/}
+R->，c;,b/c/f/i/j/r/t/w/}
+input char: @ to clousure I18
+input char: E to clousure I101
+input char: F to clousure I17
+input char: G to clousure I19
+input char: H to clousure I20
+input char: I to clousure I21
+input char: M to clousure I22
+input char: P to clousure I23
+input char: Q to clousure I24
+input char: R to clousure I25
+input char: b to clousure I32
+input char: c to clousure I33
+input char: f to clousure I29
+input char: i to clousure I28
+input char: j to clousure I31
+input char: r to clousure I26
+input char: t to clousure I27
+input char: w to clousure I30
+
+I89:
+L->JpJ，,)
+
+I90:
+J->i，,)
+
+I91:
+J->n，,)
+
+I92:
+P->j(L){，E},b/c/f/i/j/r/t/w/}
+P->j(L){，E}k{E},b/c/f/i/j/r/t/w/}
+E->，FE,}
+E->，@,}
+F->，G,b/c/f/i/j/r/t/w/}
+F->，H,b/c/f/i/j/r/t/w/}
+F->，I,b/c/f/i/j/r/t/w/}
+F->，M,b/c/f/i/j/r/t/w/}
+F->，P,b/c/f/i/j/r/t/w/}
+F->，Q,b/c/f/i/j/r/t/w/}
+F->，R,b/c/f/i/j/r/t/w/}
+G->，rn;,b/c/f/i/j/r/t/w/}
+G->，ri;,b/c/f/i/j/r/t/w/}
+H->，ti;,b/c/f/i/j/r/t/w/}
+H->，ti=J;,b/c/f/i/j/r/t/w/}
+I->，i=J;,b/c/f/i/j/r/t/w/}
+I->，io=J;,b/c/f/i/j/r/t/w/}
+M->，f(N){E},b/c/f/i/j/r/t/w/}
+M->，w(L){E},b/c/f/i/j/r/t/w/}
+P->，j(L){E},b/c/f/i/j/r/t/w/}
+P->，j(L){E}k{E},b/c/f/i/j/r/t/w/}
+Q->，b;,b/c/f/i/j/r/t/w/}
+R->，c;,b/c/f/i/j/r/t/w/}
+input char: @ to clousure I18
+input char: E to clousure I102
+input char: F to clousure I17
+input char: G to clousure I19
+input char: H to clousure I20
+input char: I to clousure I21
+input char: M to clousure I22
+input char: P to clousure I23
+input char: Q to clousure I24
+input char: R to clousure I25
+input char: b to clousure I32
+input char: c to clousure I33
+input char: f to clousure I29
+input char: i to clousure I28
+input char: j to clousure I31
+input char: r to clousure I26
+input char: t to clousure I27
+input char: w to clousure I30
+
+I93:
+M->f(N){E，},b/c/f/i/j/r/t/w/}
+input char: } to clousure I103
+
+I94:
+N->HL;O，,)
+
+I95:
+O->i，=J,)
+O->i，o=J,)
+input char: = to clousure I104
+input char: o to clousure I105
+
+I96:
+L->JpJ，,;
+
+I97:
+N->IL;O，,)
+
+I98:
+H->ti=J，;,i/n
+input char: ; to clousure I106
+
+I99:
+I->i=J;，,i/n
+
+I100:
+I->io=J，;,i/n
+input char: ; to clousure I107
+
+I101:
+M->w(L){E，},b/c/f/i/j/r/t/w/}
+input char: } to clousure I108
+
+I102:
+P->j(L){E，},b/c/f/i/j/r/t/w/}
+P->j(L){E，}k{E},b/c/f/i/j/r/t/w/}
+input char: } to clousure I109
+
+I103:
+M->f(N){E}，,b/c/f/i/j/r/t/w/}
+
+I104:
+O->i=，J,)
+J->，i,)
+J->，n,)
+input char: J to clousure I110
+input char: i to clousure I90
+input char: n to clousure I91
+
+I105:
+O->io，=J,)
+input char: = to clousure I111
+
+I106:
+H->ti=J;，,i/n
+
+I107:
+I->io=J;，,i/n
+
+I108:
+M->w(L){E}，,b/c/f/i/j/r/t/w/}
+
+I109:
+P->j(L){E}，,b/c/f/i/j/r/t/w/}
+P->j(L){E}，k{E},b/c/f/i/j/r/t/w/}
+input char: k to clousure I112
+
+I110:
+O->i=J，,)
+
+I111:
+O->io=，J,)
+J->，i,)
+J->，n,)
+input char: J to clousure I113
+input char: i to clousure I90
+input char: n to clousure I91
+
+I112:
+P->j(L){E}k，{E},b/c/f/i/j/r/t/w/}
+input char: { to clousure I114
+
+I113:
+O->io=J，,)
+
+I114:
+P->j(L){E}k{，E},b/c/f/i/j/r/t/w/}
+E->，FE,}
+E->，@,}
+F->，G,b/c/f/i/j/r/t/w/}
+F->，H,b/c/f/i/j/r/t/w/}
+F->，I,b/c/f/i/j/r/t/w/}
+F->，M,b/c/f/i/j/r/t/w/}
+F->，P,b/c/f/i/j/r/t/w/}
+F->，Q,b/c/f/i/j/r/t/w/}
+F->，R,b/c/f/i/j/r/t/w/}
+G->，rn;,b/c/f/i/j/r/t/w/}
+G->，ri;,b/c/f/i/j/r/t/w/}
+H->，ti;,b/c/f/i/j/r/t/w/}
+H->，ti=J;,b/c/f/i/j/r/t/w/}
+I->，i=J;,b/c/f/i/j/r/t/w/}
+I->，io=J;,b/c/f/i/j/r/t/w/}
+M->，f(N){E},b/c/f/i/j/r/t/w/}
+M->，w(L){E},b/c/f/i/j/r/t/w/}
+P->，j(L){E},b/c/f/i/j/r/t/w/}
+P->，j(L){E}k{E},b/c/f/i/j/r/t/w/}
+Q->，b;,b/c/f/i/j/r/t/w/}
+R->，c;,b/c/f/i/j/r/t/w/}
+input char: @ to clousure I18
+input char: E to clousure I115
+input char: F to clousure I17
+input char: G to clousure I19
+input char: H to clousure I20
+input char: I to clousure I21
+input char: M to clousure I22
+input char: P to clousure I23
+input char: Q to clousure I24
+input char: R to clousure I25
+input char: b to clousure I32
+input char: c to clousure I33
+input char: f to clousure I29
+input char: i to clousure I28
+input char: j to clousure I31
+input char: r to clousure I26
+input char: t to clousure I27
+input char: w to clousure I30
+
+I115:
+P->j(L){E}k{E，},b/c/f/i/j/r/t/w/}
+input char: } to clousure I116
+
+I116:
+P->j(L){E}k{E}，,b/c/f/i/j/r/t/w/}
+

@@ -180,6 +180,7 @@ void NFA_to_DFA() {
 	ofstream out;
 	out.open("show_DFA.txt");
 	out << "NFA_TO_DFA Result:" << endl;
+	cout << "NFA_TO_DFA Result:" << endl;
 	bool marked[MAX_NODES] = { false };
 	set<char> T0, T1;
 
@@ -198,15 +199,18 @@ void NFA_to_DFA() {
 		
 		//输出DFA的每个子集C[i]
 		out << "DFA的第" << i << "个子集为:";
+		cout << "DFA的第" << i << "个子集为:";
 		auto count_size = C[i].size();
 		for (auto it = C[i].begin(); it != C[i].end(); it++) {
 			out << *it;
+			cout << *it;
 			if (--count_size) {
 				out << " , ";
+				cout << " , ";
 			}
 		}
 		out << endl;
-
+		cout << endl;
 		for (auto it = weight.begin(); it != weight.end(); it++) {//weight.size()为nfa总的val值数量 
 			int j = 0;
 			if (*it != '@') {
@@ -239,6 +243,7 @@ void NFA_to_DFA() {
 					dfa.edge[dfa.edge_num].end = k;
 					dfa.edge_num++;
 					out << i << "	input	" << *it << "	to	" << k << endl;
+					cout << i << "	input	" << *it << "	to	" << k << endl;
 					//debug << i << " " << k << " " << *it << endl;//https://csacademy.com/app/graph_editor/的输出格式，生成有向图用的
 				}
 				j++;
@@ -271,9 +276,14 @@ void NFA_to_DFA() {
 	out << "Final state is : ";
 	for (int a = 0; a < dfa_final_state.size(); a++) {
 		out << dfa_final_state[a];
-		if (a != dfa_final_state.size() - 1) out << " , ";
+		cout << dfa_final_state[a];
+		if (a != dfa_final_state.size() - 1) {
+			out << " , ";
+			cout << " , ";
+		}
 	}
 	out << endl;
+	cout << endl;
 	out.close();
 }
 
@@ -287,6 +297,7 @@ void show_DFA_node() {
 
 //debug用于检查dfa所有的边
 void show_DFA_edge() {
+	debug << "DFA的所有边如下:" << endl;
 	for (int i = 0; i < dfa.edge_num; i++) {
 		debug << dfa.edge[i].start << "	" << dfa.edge[i].val << "	" << dfa.edge[i].end << endl;
 	}
@@ -463,7 +474,7 @@ void scan() {
 
 int main() {
 	create_NFA();
-	show_NFA_node();
+	show_NFA_node();//输出至show_NFA.txt
 	show_NFA_edge();
 	NFA_to_DFA();//输出至show_DFA.txt
 	show_DFA_node();
@@ -478,6 +489,6 @@ int main() {
 	output.open("token_output.txt");
 	scan();
 	output.close();
-	getchar(); 
+	getchar();
 	return 0;
 }

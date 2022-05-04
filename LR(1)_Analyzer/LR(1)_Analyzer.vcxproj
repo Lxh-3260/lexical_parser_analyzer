@@ -142,6 +142,7 @@
     <ClCompile Include="LR%281%29_Analyzer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="CLOUSURE.txt" />
     <Text Include="grammar2.txt" />
     <Text Include="LR(1)Analyzer_Program.txt" />
     <Text Include="LR(1)Table.txt" />

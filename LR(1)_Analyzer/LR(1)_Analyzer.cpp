@@ -462,28 +462,47 @@ void get_Clousure() {
 
 //debug时展示项目集和他们之间相互转化的函数，并验证其正确性
 void show_Clousure() {
+	ofstream out;
+	out.open("CLOUSURE.txt");
 	for (int i = 0; i < clousure.size(); i++) {
 		printf("I%d:\n", i);
+		out << "I" << i << ":" << endl;
 		for (int j = 0; j < clousure[i].project.size(); j++) {
 			for (int k = 0; k < clousure[i].project[j].size(); k++) {
-				if (clousure[i].project[j][k] != ' ')cout << clousure[i].project[j][k];
-				else cout << "·";
-				if (k == 0) cout << "->";
+				if (clousure[i].project[j][k] != ' ') {
+					cout << clousure[i].project[j][k];
+					out << clousure[i].project[j][k];
+				}
+				else {
+					cout << "·";
+					out << "·";
+				}
+				if (k == 0) {
+					cout << "->";
+					out << "->";
+				}
 			}
 			cout << ',';
+			out << ',';
 			int count = 0;
 			for (auto it = clousure[i].search_forward[j].begin(); it != clousure[i].search_forward[j].end(); it++) {
 				cout << *it;
-				
-				if (count != clousure[i].search_forward[j].size() - 1) cout << '/';
+				out << *it;
+				if (count != clousure[i].search_forward[j].size() - 1) {
+					cout << '/';
+					out << '/';
+				}
 				count++;
 			}
 			cout << endl;
+			out << endl;
 		}
 		for (auto& it : clousure[i].go) {
 			cout <<"input char: " << it.first <<" to clousure I" << it.second << endl;
+			out << "input char: " << it.first << " to clousure I" << it.second << endl;
 		}
 		cout << endl;
+		out << endl;
 	}
 }
 
@@ -805,4 +824,6 @@ int main() {
 	output.open("LR(1)Analyzer_Program.txt");
 	LR1_Analyze();
 	output.close();
+	getchar();
+	return 0;
 }
