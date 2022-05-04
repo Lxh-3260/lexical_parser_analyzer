@@ -463,11 +463,11 @@ void scan() {
 
 int main() {
 	create_NFA();
-	//show_NFA_node();
-	//show_NFA_edge();
+	show_NFA_node();
+	show_NFA_edge();
 	NFA_to_DFA();//输出至show_DFA.txt
-	//show_DFA_node();
-	//show_DFA_edge();
+	show_DFA_node();
+	show_DFA_edge();
 	
 	//测试正规文法和token的输入部分
 	/*string token;
@@ -478,5 +478,6 @@ int main() {
 	output.open("token_output.txt");
 	scan();
 	output.close();
+	getchar(); 
 	return 0;
 }

@@ -25,6 +25,7 @@ vector<string> token;//读入词法分析输出的token，并将其转换成我写的二型文法所能识
 
 map< map<string, char>, string> table; //LR分析表
 ofstream output;//输出语法分析的过程到LR(1)Analyzer_Program.txt
+vector<int> line_num;//记录token行号，为了后面的错误显示
 
 //项目集
 struct Project {
@@ -89,7 +90,10 @@ void deal_with_token() {
 		for (flag2 = content.size(); flag2 > flag1; flag2--) {
 			if (content[flag2] == ',') break;
 		}
-		string str1, str2;
+		string str0, str1, str2;
+		for (int i = 0; i < flag1; i++) {
+			str0 += content[i];
+		}
 		for (int i = flag1 + 1; i < flag2; i++) {
 			str1 += content[i];
 		}
@@ -98,52 +102,69 @@ void deal_with_token() {
 		}
 		if (str1 == "return") {
 			token.push_back("r");
+			line_num.push_back(atoi(str0.c_str()));
 			continue;
 		}
 		if (str1 == "int" || str1 == "void" || str1 == "bool" || str1 == "float" || str1 == "double" || str1 == "char") {
 			token.push_back("t");
+			line_num.push_back(atoi(str0.c_str()));
 			continue;
 		}
 		if (str1 == "if") {
 			token.push_back("j");
+			line_num.push_back(atoi(str0.c_str()));
 			continue;
 		}
 		if (str1 == "else") {
 			token.push_back("k");
+			line_num.push_back(atoi(str0.c_str()));
 			continue;
 		}
 		if (str1 == "while") {
 			token.push_back("w");
+			line_num.push_back(atoi(str0.c_str()));
 			continue;
 		}
 		if (str1 == "break") {
 			token.push_back("b");
+			line_num.push_back(atoi(str0.c_str()));
 			continue;
 		}
 		if (str1 == "continue") {
 			token.push_back("c");
+			line_num.push_back(atoi(str0.c_str()));
 			continue;
 		}
 		if (str2 == "limiter") {
 			token.push_back(str1);
+			line_num.push_back(atoi(str0.c_str()));
 			continue;
 		}
 		if (str2 == "identifier" || str1=="main") {
 			token.push_back("i");
+			line_num.push_back(atoi(str0.c_str()));
 			continue;
 		}
 		if (str2 == "number") {
 			token.push_back("n");
+			line_num.push_back(atoi(str0.c_str()));
 			continue;
 		}
 		if (str2 == "operator") {
 			if (str1 == ">" || str1 == "<" || str1 == ">=" || str1 == "<=" || str1 == "==" || str1 == "!=") {
 				token.push_back("p");
+				line_num.push_back(atoi(str0.c_str()));
 				continue;
 			}
 			else {
-				if (str1 == "=") token.push_back("=");
-				else token.push_back("o=");
+				if (str1 == "=") {
+					token.push_back("=");
+					line_num.push_back(atoi(str0.c_str()));
+				}
+				else {
+					token.push_back("o=");
+					line_num.push_back(atoi(str0.c_str()));
+				}
 				continue;
 			}
 		}
@@ -515,7 +536,30 @@ bool get_LR1Table() {
 									//debug << i;
 									//debug过程中发现table里，一个状态的一个字符移入，会有两个不同的归约，产生了归约归约冲突
 									//输出i找到有冲突的项目集,发现是运算式K的原因，注释掉有关K的文法，所写的文法又恢复成了LR1文法
-									cout << "error";
+									cout << "存在 归约-归约冲突 或 移进-归约冲突 不是LR(1)文法" << endl;
+									cout << "冲突出现在第" << i << "个项目集，如下所示" << endl;
+									printf("I%d:\n", i);
+									for (int j = 0; j < clousure[i].project.size(); j++) {
+										for (int k = 0; k < clousure[i].project[j].size(); k++) {
+											if (clousure[i].project[j][k] != ' ')cout << clousure[i].project[j][k];
+											else cout << "·";
+											if (k == 0) cout << "->";
+										}
+										cout << ',';
+										int count = 0;
+										for (auto it = clousure[i].search_forward[j].begin(); it != clousure[i].search_forward[j].end(); it++) {
+											cout << *it;
+
+											if (count != clousure[i].search_forward[j].size() - 1) cout << '/';
+											count++;
+										}
+										cout << endl;
+									}
+									for (auto& it : clousure[i].go) {
+										cout << "input char: " << it.first << " to clousure I" << it.second << endl;
+									}
+									cout << endl;
+									exit(0);
 									return false;
 								}
 								else {
@@ -565,36 +609,44 @@ bool get_LR1Table() {
 
 //debug过程中展示LR1项目表
 void show_LR1Table() {
+	ofstream out;
+	out.open("LR(1)Table.txt");
 	for (int i = -1; i < (int)clousure.size(); i++) {
 		if (i == -1) {
 			//输出ACTION GOTO的第一行“状态”
 			cout << std::left << setw(5) << "状态";
+			out << std::left << setw(5) << "状态";
 		}
 		else {
 			//输出ACTION GOTO的第一列状态数
 			cout << std::left << setw(5) << i;
+			out << std::left << setw(5) << i;
 		}
 		for (auto& it : terminal) {
 			//处理终结符的ACTION GOTO表
 			if (i == -1) {
 				//i==-1时输出ACTION GOTO的第一行终结符部分
 				cout << std::left << setw(4) << it.first;
+				out << std::left << setw(4) << it.first;
 			}
 			else {
 				//i!=-1时输出ACTION GOTO表终结符部分的TABLE
 				map<string, char> m;
 				m[to_string(i)] = it.first;
 				cout << std::left << setw(4) << table[m];
+				out << std::left << setw(4) << table[m];
 			}
 		}
 		//处理#的Table
 		if (i == -1) {
 			cout << std::left << setw(4) << '#';
+			out << std::left << setw(4) << '#';
 		}
 		else {
 			map<string, char> m;
 			m[to_string(i)] = '#';
 			cout << std::left << setw(4) << table[m];
+			out << std::left << setw(4) << table[m];
 		}
 		for (auto& it : nonterminal) {
 			//处理非终结符的ACTION GOTO表
@@ -604,15 +656,18 @@ void show_LR1Table() {
 			if (i == -1) {
 				//i==-1时输出ACTION GOTO的第一行非终结符部分
 				cout << std::left << setw(4) << it.first;
+				out << std::left << setw(4) << it.first;
 			}
 			else {
 				//i!=-1时输出ACTION GOTO表非终结符部分的TABLE
 				map<string, char> m;
 				m[to_string(i)] = it.first;
 				cout << std::left << setw(4) << table[m];
+				out << std::left << setw(4) << table[m];
 			}
 		}
 		cout << endl;
+		out << endl;
 	}
 }
 
@@ -718,8 +773,18 @@ bool LR1_Analyze() {
 			}
 			else {
 				//对应上面注释的第二种情况 分析出错
-				cout << "NO!" << endl;
-				output << "NO!" << endl;
+				int i = token.size() - 1, j = str_token.size() - 1;
+				while (true) {
+					if (j == 0) {
+						break;
+					}
+					else {
+						i--;
+						j--;
+					}
+				}
+				cout << "NO!" << " 出错行号为: " << line_num[i] << endl;
+				output << "NO!" << " 出错行号为: " << line_num[i] << endl;
 				return false;
 			}
 		}
@@ -734,9 +799,9 @@ int main() {
 	get_First();
 	//show_First();
 	get_Clousure();
-	//show_Clousure();
+	show_Clousure();
 	get_LR1Table();
-	//show_LR1Table();
+	show_LR1Table();
 	output.open("LR(1)Analyzer_Program.txt");
 	LR1_Analyze();
 	output.close();

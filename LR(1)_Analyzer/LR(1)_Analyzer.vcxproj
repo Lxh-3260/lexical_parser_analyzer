@@ -144,6 +144,7 @@
   <ItemGroup>
     <Text Include="grammar2.txt" />
     <Text Include="LR(1)Analyzer_Program.txt" />
+    <Text Include="LR(1)Table.txt" />
     <Text Include="test.txt" />
     <Text Include="token_output.txt" />
   </ItemGroup>
